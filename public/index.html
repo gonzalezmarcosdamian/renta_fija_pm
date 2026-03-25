@@ -682,6 +682,7 @@ paridad = (precio / pago_final) * 100
     <div class="code-block">
       <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
       <pre>
+const settlement = getSettlement(); // T+1
 const coefCER = cer_actual / cer_emision;
 let amortAcum = 0;
 const flujos = bondFlujos.map(f => {
@@ -689,7 +690,7 @@ const flujos = bondFlujos.map(f => {
   amortAcum += f.amortizacion;
   const interes = vr * f.tasa_interes * f.base;
   return { fecha: f.fecha, monto: (interes + f.amortizacion) * coefCER };
-}).filter(f => f.fecha > hoy);
+}).filter(f => f.fecha > settlement);
 const tir = calcYTM(precio / 100, flujos, settlement);</pre>
     </div>
 
@@ -938,6 +939,17 @@ tir = brentq(lambda r: valor_presente(r, flujos, sett) - precio_usd/100, -0.5, 2
       <strong>Flujos identicos:</strong> AL30 y GD30 tienen exactamente los mismos flujos. Solo cambia la ley (local vs NY) y el precio.
     </div>
 
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const flujos = bondConfig.flujos
+  .map(f => ({ fecha: new Date(f.fecha), monto: f.monto / 100 }))
+  .filter(f => f.fecha > settlement);
+const precioNorm = precioARS / 100;
+const tir = calcYTM(precioNorm, flujos, settlement);
+const duration = calcDuration(flujos, settlement, tir);</pre>
+    </div>
+
     <div class="note-biz">
       <div class="note-title">Validar con negocio — calculos Soberanos</div>
       ① Confirmar que los flujos en USD son <strong>cupon + amortizacion por 100 VN</strong>.<br>
@@ -1028,6 +1040,17 @@ paridad = (precio / pago_ajustado) * 100
       <strong>TC Oficial:</strong> BCRA serie 4, publicado solo dias habiles. Para fines de semana usar ultimo publicado.<br>
       <strong>Unidades data912:</strong> D30A6 cotiza en miles de ARS (~137220). Dividir por 1000 para normalizar a por-100-VN.<br>
       <strong>Devaluacion implicita:</strong> comparar TIR LELINK vs TIR LECAP del mismo plazo. La diferencia es la devaluacion que el mercado espera. Util pero no es un calculo directo.
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const settlement = getSettlement(); // T+1
+const coefDL = tc_actual / tc_emision;
+const pagoAjustado = 100 * coefDL;
+const ganancia = pagoAjustado / precio;
+const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
+const paridad = (precio / pagoAjustado) * 100;</pre>
     </div>
 
     <div class="note-biz">
@@ -1150,6 +1173,21 @@ tir = (pago_estimado / precio) ** (365 / dias_al_vto) - 1
       <strong>Cache:</strong> la serie historica no cambia (datos pasados son inmutables). Solo hay que pedir el dia nuevo.
     </div>
 
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const settlement = getSettlement(); // T+1
+// Acumular TAMAR historica (desde emision hasta hoy)
+let coefHist = 1.0;
+for (const punto of serieTAMAR) {
+  coefHist *= (1 + punto.valor / 100 / 365);
+}
+// Proyectar TAMAR futura (constante)
+const coefProy = Math.pow(1 + tamarActual / 100 / 365, diasFuturo);
+const pagoEstimado = 100 * coefHist * coefProy;
+const tir = (Math.pow(pagoEstimado / precio, 365 / diasFuturo) - 1) * 100;</pre>
+    </div>
+
     <div class="note-biz">
       <div class="note-title">Validar con negocio — calculos LETAM</div>
       ① Confirmar que <strong>coef_TAMAR = Π(1 + tasa_dia/100/365)</strong> se acumula dia por dia desde emision.<br>
@@ -1246,6 +1284,21 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
       <strong>TAMAR acumulada por periodo:</strong> la simplificacion TAMAR_periodo ≈ TAMAR_TNA × base funciona para la estimacion, pero en produccion habria que acumular dia a dia dentro de cada periodo de cupon.
     </div>
 
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const settlement = getSettlement(); // T+1
+const tasaEfectiva = tamarTNA / 100 + spread;
+let amortAcum = 0;
+const flujos = cronograma.map(f => {
+  const vr = 1 - amortAcum;
+  const cupon = vr * tasaEfectiva * f.base;
+  amortAcum += f.amortizacion;
+  return { fecha: new Date(f.fecha), monto: cupon + f.amortizacion };
+}).filter(f => f.fecha > settlement);
+const tir = calcYTM(precio / 100, flujos, settlement);</pre>
+    </div>
+
     <div class="note-biz">
       <div class="note-title">Validar con negocio — calculos BONTAM</div>
       ① Confirmar que <strong>cupon = VR × (TAMAR_acum + spread) × base</strong>.<br>
@@ -1298,11 +1351,11 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
       </tr>
       <tr>
         <td><span class="badge badge-letam">LETAM</span></td><td>—</td><td>Estimada</td><td>Si</td>
-        <td>Directa + TAMAR proy.</td><td>TAMAR</td><td>27</td>
+        <td>Directa + TAMAR proy.</td><td>TAMAR</td><td>44</td>
       </tr>
       <tr>
         <td><span class="badge badge-letam">BONTAM</span></td><td>—</td><td>Estimada</td><td>Si</td>
-        <td>Newton-Raphson + TAMAR</td><td>TAMAR</td><td>27</td>
+        <td>Newton-Raphson + TAMAR</td><td>TAMAR</td><td>44</td>
       </tr>
     </table>
     </div>
@@ -1331,8 +1384,21 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
 <script>
 // ─── Helpers ───
 const MS_YR = 365.25 * 24 * 3600000;
+const SETTLEMENT_DAYS = 1; // T+1 constante
 const $ = id => document.getElementById(id);
 const val = id => parseFloat($(id).value) || 0;
+
+// Settlement T+1: un dia habil despues de hoy
+function getSettlement() {
+  const d = new Date();
+  let added = 0;
+  while (added < SETTLEMENT_DAYS) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) added++; // skip weekends
+  }
+  return d;
+}
 
 function fmt(n, d=2) { return n.toFixed(d); }
 function fmtPct(n) { return n.toFixed(2) + '%'; }
@@ -1391,7 +1457,7 @@ function calcLecap() {
   const precio = val('lecap-precio');
   const pf = val('lecap-pago');
   const dias = val('lecap-dias');
-  if (!precio || !pf || !dias) return;
+  if (!precio || precio <= 0 || !pf || pf <= 0 || dias <= 0) return;
 
   const ganancia = pf / precio;
   const tna = (ganancia - 1) * (365 / dias) * 100;
@@ -1419,10 +1485,10 @@ function calcBoncer() {
   const cerAct = val('cer-actual');
   const cerEm = val('cer-emision');
   const tasa = val('cer-tasa');
-  if (!precio || !cerAct || !cerEm) return;
+  if (!precio || precio <= 0 || !cerAct || cerEm <= 0) return;
 
   const coef = cerAct / cerEm;
-  const today = new Date();
+  const today = getSettlement(); // T+1
   const flujosDef = [
     { fecha: '2025-11-10', amort: 0.20, tasa: tasa, base: 0.5 },
     { fecha: '2026-05-11', amort: 0.20, tasa: tasa, base: 0.5 },
@@ -1480,7 +1546,7 @@ function calcBoncer() {
 function calcSoberanos() {
   const precioARS = val('sob-precio');
   if (!precioARS) return;
-  const today = new Date();
+  const today = getSettlement(); // T+1
 
   const flujosRaw = [
     { fecha: '2026-07-09', monto: 8.27 }, { fecha: '2027-01-09', monto: 8.24 },
@@ -1527,7 +1593,7 @@ function calcSoberanos() {
 function calcBote() {
   const precio = val('bote-precio');
   if (!precio) return;
-  const today = new Date();
+  const today = getSettlement(); // T+1
 
   const flujos = [
     { fecha: new Date('2025-04-15'), monto: 8.50 / 100 },
@@ -1571,7 +1637,7 @@ function calcLelink() {
   const tcAct = val('dl-tc-actual');
   const tcEm = val('dl-tc-emision');
   const dias = val('dl-dias');
-  if (!precio || !tcAct || !tcEm || !dias) return;
+  if (!precio || precio <= 0 || !tcAct || tcEm <= 0 || dias <= 0) return;
 
   const coefDL = tcAct / tcEm;
   const pagoAjustado = 100 * coefDL;
@@ -1603,7 +1669,7 @@ function calcLetam() {
   const tamarTNA = val('tam-tna') / 100;
   const diasPasados = val('tam-dias-pasados');
   const diasFuturo = val('tam-dias-futuro');
-  if (!precio || !tamarTNA) return;
+  if (!precio || precio <= 0 || !tamarTNA || diasFuturo <= 0) return;
 
   const coefHist = Math.pow(1 + tamarTNA / 365, diasPasados);
   const coefProy = Math.pow(1 + tamarTNA / 365, diasFuturo);
@@ -1638,7 +1704,7 @@ function calcBontam() {
   const spread = val('btam-spread') / 100;
   if (!precio) return;
 
-  const today = new Date();
+  const today = getSettlement(); // T+1
   const tasaEfectiva = tamarTNA + spread;
 
   const flujosDef = [
