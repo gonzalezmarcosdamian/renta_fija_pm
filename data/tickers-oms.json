@@ -1,0 +1,293 @@
+{
+  "_doc": "Tickers de renta fija del OMS. Extraido del CSV 2026-03-25.",
+  "_total": 91,
+  "lecap": [
+    {
+      "ticker": "S01L4"
+    },
+    {
+      "ticker": "S10L5"
+    },
+    {
+      "ticker": "S10N5"
+    },
+    {
+      "ticker": "S11N4"
+    },
+    {
+      "ticker": "S12L4"
+    },
+    {
+      "ticker": "S12S5"
+    },
+    {
+      "ticker": "S13D4"
+    },
+    {
+      "ticker": "S13S4"
+    },
+    {
+      "ticker": "S14F5"
+    },
+    {
+      "ticker": "S14J4"
+    },
+    {
+      "ticker": "S14M5"
+    },
+    {
+      "ticker": "S14O4"
+    },
+    {
+      "ticker": "S15G5"
+    },
+    {
+      "ticker": "S16A5"
+    },
+    {
+      "ticker": "S16E6"
+    },
+    {
+      "ticker": "S16G4"
+    },
+    {
+      "ticker": "S16Y5"
+    },
+    {
+      "ticker": "S17E5"
+    },
+    {
+      "ticker": "S18J5"
+    },
+    {
+      "ticker": "S26L4"
+    },
+    {
+      "ticker": "S27F6"
+    },
+    {
+      "ticker": "S28A5"
+    },
+    {
+      "ticker": "S28F5"
+    },
+    {
+      "ticker": "S28N5"
+    },
+    {
+      "ticker": "S29G5"
+    },
+    {
+      "ticker": "S29N4"
+    },
+    {
+      "ticker": "S29Y6"
+    },
+    {
+      "ticker": "S30A6"
+    },
+    {
+      "ticker": "S30G4"
+    },
+    {
+      "ticker": "S30J5"
+    },
+    {
+      "ticker": "S30O6"
+    },
+    {
+      "ticker": "S30S4"
+    },
+    {
+      "ticker": "S30S5"
+    },
+    {
+      "ticker": "S30Y5"
+    },
+    {
+      "ticker": "S31E5"
+    },
+    {
+      "ticker": "S31G6"
+    },
+    {
+      "ticker": "S31L5"
+    },
+    {
+      "ticker": "S31M5"
+    },
+    {
+      "ticker": "S31O4"
+    },
+    {
+      "ticker": "S31O5"
+    }
+  ],
+  "boncap": [
+    {
+      "ticker": "T13F6"
+    },
+    {
+      "ticker": "T15D5"
+    },
+    {
+      "ticker": "T15E7"
+    },
+    {
+      "ticker": "T17O5"
+    },
+    {
+      "ticker": "T2V4"
+    },
+    {
+      "ticker": "T2X4"
+    },
+    {
+      "ticker": "T2X5"
+    },
+    {
+      "ticker": "T30A7"
+    },
+    {
+      "ticker": "T30E6"
+    },
+    {
+      "ticker": "T30J6"
+    },
+    {
+      "ticker": "T4X4"
+    },
+    {
+      "ticker": "T5X4"
+    },
+    {
+      "ticker": "TDE25"
+    },
+    {
+      "ticker": "TDG24"
+    },
+    {
+      "ticker": "TO26"
+    },
+    {
+      "ticker": "TV25"
+    },
+    {
+      "ticker": "TY30P"
+    }
+  ],
+  "letam": [
+    {
+      "ticker": "M10N5"
+    },
+    {
+      "ticker": "M16E6"
+    },
+    {
+      "ticker": "M31G6"
+    },
+    {
+      "ticker": "M31L5"
+    }
+  ],
+  "boncer": [
+    {
+      "ticker": "TX26"
+    },
+    {
+      "ticker": "TZX25"
+    },
+    {
+      "ticker": "TZX26"
+    },
+    {
+      "ticker": "TZX27"
+    },
+    {
+      "ticker": "TZXD5"
+    },
+    {
+      "ticker": "TZXD6"
+    },
+    {
+      "ticker": "TZXD7"
+    },
+    {
+      "ticker": "TZXM6"
+    },
+    {
+      "ticker": "TZXO5"
+    },
+    {
+      "ticker": "TZXO6"
+    },
+    {
+      "ticker": "TZXY5"
+    }
+  ],
+  "bote": [
+    {
+      "ticker": "TTD26"
+    },
+    {
+      "ticker": "TTJ26"
+    },
+    {
+      "ticker": "TTM26"
+    },
+    {
+      "ticker": "TTS26"
+    }
+  ],
+  "bonar": [
+    {
+      "ticker": "AE38"
+    },
+    {
+      "ticker": "AL29"
+    },
+    {
+      "ticker": "AL30"
+    },
+    {
+      "ticker": "AL35"
+    },
+    {
+      "ticker": "AL41"
+    }
+  ],
+  "global": [
+    {
+      "ticker": "GD29"
+    },
+    {
+      "ticker": "GD30"
+    },
+    {
+      "ticker": "GD35"
+    },
+    {
+      "ticker": "GD38"
+    },
+    {
+      "ticker": "GD41"
+    },
+    {
+      "ticker": "GD46"
+    }
+  ],
+  "otros_rf": [
+    {
+      "ticker": "BPOA7"
+    },
+    {
+      "ticker": "BPOC7"
+    },
+    {
+      "ticker": "BPOD7"
+    },
+    {
+      "ticker": "BPY26"
+    }
+  ]
+}

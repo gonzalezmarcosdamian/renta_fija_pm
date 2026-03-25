@@ -303,6 +303,7 @@
     <a href="#lecap" class="active">LECAP</a>
     <a href="#boncer">BONCER</a>
     <a href="#bote">BOTE</a>
+    <a href="#soberanos">Soberanos</a>
     <a href="#lelink">LELINK</a>
     <a href="#letam">LETAM</a>
     <a href="#bontam">BONTAM</a>
@@ -315,6 +316,7 @@
   <div class="container">
     <h1>Renta Fija Argentina<br>para Developers</h1>
     <p>Cada instrumento explicado con su formula, origen de datos y ejemplo interactivo. De lo simple a lo complejo.</p>
+    <p style="margin-top:12px;font-family:var(--mono);font-size:13px;color:var(--text-2)">Settlement: <strong style="color:var(--text)">T+1</strong> (constante) · OMS: <strong style="color:var(--text)">91 tickers</strong> de renta fija</p>
     <div style="margin-top:24px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
       <span class="badge badge-oms">OMS</span> Precio de mercado
       <span class="badge badge-bcra">BCRA</span> Coeficientes
@@ -395,10 +397,9 @@
       </div>
 
       <div class="note-biz">
-        <div class="note-title">Nota negocio — validar</div>
-        En produccion, los precios vendran del <strong>OMS interno</strong>, no de data912.
-        El equipo de mercados debe confirmar: ① que ticker del OMS mapea a cada instrumento
-        ② si el precio del OMS es por 100 VN o en otra unidad ③ si se usa ultimo, bid, ask o VWAP.
+        <div class="note-title">Validar con negocio — calculos</div>
+        ① Confirmar que el precio del OMS es <strong>por 100 VN</strong> (o la unidad que corresponda).<br>
+        ② Confirmar que la liquidacion es siempre <strong>T+1</strong> (constante en todo el sistema).
       </div>
     </div>
 
@@ -417,11 +418,10 @@
       </table>
 
       <div class="note-biz">
-        <div class="note-title">Nota negocio — validar</div>
-        ① Confirmar pago_final de cada LECAP/BONCAP contra resultado de licitacion del Ministerio.
-        ② Confirmar CER de emision de cada BONCER/LECER contra publicacion BCRA de esa fecha.
-        ③ Confirmar cronograma de flujos de bonos contra prospecto oficial de la CNV.
-        ④ Para nuevas licitaciones: definir proceso de carga (quien agrega instrumentos nuevos y cuando).
+        <div class="note-title">Validar con negocio — datos de emision</div>
+        ① Confirmar <strong>pago_final</strong> de cada LECAP/BONCAP contra resultado de licitacion.<br>
+        ② Confirmar <strong>CER de emision</strong> de cada BONCER/LECER contra BCRA de esa fecha.<br>
+        ③ Confirmar <strong>cronograma de flujos</strong> de bonos contra prospecto oficial.
       </div>
     </div>
   </div>
@@ -433,6 +433,7 @@
     <div class="section-header">
       <h2><span class="badge badge-lecap">LECAP / BONCAP</span> Letras y Bonos Capitalizables</h2>
       <p>El instrumento mas simple. Compras a un precio, cobras un monto fijo al vencimiento. Sin cupones, sin ajuste.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--green)">● OMS: 40 LECAPs + 17 BONCAPs listados — ejemplo con S17A6</p>
     </div>
 
     <!-- Dev intro -->
@@ -536,11 +537,11 @@ paridad = (precio / pago_final) * 100
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>Pago final:</strong> confirmar contra el resultado de licitacion publicado por el Ministerio de Economia.<br>
-      ② <strong>TNA vs TIR:</strong> TNA es interes simple (como un plazo fijo). TIR es compuesto (como reinvertir todos los dias). TNA &lt; TIR siempre. ¿Cual mostramos al usuario? ¿Ambas?<br>
-      ③ <strong>Paridad:</strong> bajo 100% = descuento (compras barato), sobre 100% = premio. ¿La mostramos?<br>
-      ④ <strong>Comisiones:</strong> ¿incluimos arancel/impuestos en el calculo o se muestran aparte?
+      <div class="note-title">Validar con negocio — calculos LECAP</div>
+      ① Confirmar que <strong>TNA = (ganancia − 1) × (365 / dias)</strong> es interes simple anualizado.<br>
+      ② Confirmar que <strong>TIR = ganancia^(365/dias) − 1</strong> es interes compuesto anualizado.<br>
+      ③ Confirmar que <strong>Paridad = precio / pago_final × 100</strong>. Bajo 100% = descuento.<br>
+      ④ Confirmar que los dias se calculan desde <strong>T+1</strong> hasta fecha de vencimiento.
     </div>
   </div>
 </section>
@@ -551,6 +552,8 @@ paridad = (precio / pago_final) * 100
     <div class="section-header">
       <h2><span class="badge badge-boncer">BONCER / LECER</span> Ajustados por CER (inflacion)</h2>
       <p>El capital se ajusta por inflacion. Los flujos se multiplican por el coeficiente CER. La TIR es <strong>real</strong> (por encima de inflacion).</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--green)">● OMS: 11 BONCERs listados — ejemplo con TX26</p>
+      <p class="text-sm mono" style="margin-top:4px;color:var(--amber)">○ LECER: preparado para listar (0 en OMS, ejemplo con X15Y6)</p>
     </div>
 
     <div class="card" style="border-left:3px solid var(--emerald)">
@@ -670,16 +673,16 @@ tir = brentq(lambda r: pv(r) - precio/100, -0.5, 2.0) * 100
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>CER de emision:</strong> confirmar con BCRA el CER exacto de la fecha de emision de cada bono. TX26 = 22.544 (emitido en mayo 2021). LECERs recientes tienen CER ~650-700.<br>
-      ② <strong>TIR real:</strong> la TIR de un BONCER es REAL (por encima de inflacion). Si TIR = 5%, el inversor gana inflacion + 5%. ¿Mostramos "TIR real" o "TIR + inflacion estimada"?<br>
-      ③ <strong>Cronograma de flujos:</strong> validar contra prospecto oficial. Cada fecha de pago, % de amortizacion, y tasa de cupon.<br>
-      ④ <strong>CER actual:</strong> ¿se actualiza 1 vez por dia? ¿Quien lo monitorea si BCRA no publica?
+      <div class="note-title">Validar con negocio — calculos BONCER</div>
+      ① Confirmar que <strong>coef_CER = CER_actual / CER_emision</strong>.<br>
+      ② Confirmar que <strong>flujo_ajustado = (VR × tasa × base + amort) × coef_CER</strong>.<br>
+      ③ Confirmar que la TIR resultante es <strong>real</strong> (por encima de inflacion). Si TIR = 5%, el rendimiento es CER + 5%.<br>
+      ④ Confirmar <strong>VR = 1 − Σ amortizaciones pagadas</strong> y que se recalcula con cada pago.<br>
+      ⑤ Para LECER (zero coupon): confirmar que <strong>pago = 100 × coef_CER</strong>, formula directa sin Newton-Raphson.
     </div>
   </div>
 </section>
 
-<!-- Soberanos USD (AL30, GD30) — fuera de scope, solo instrumentos ARS -->
 
 <!-- ════════════════════ BOTE ════════════════════ -->
 <section id="bote">
@@ -687,6 +690,7 @@ tir = brentq(lambda r: pv(r) - precio/100, -0.5, 2.0) * 100
     <div class="section-header">
       <h2><span class="badge badge-bote">BOTE</span> Bonos a Tasa Fija con Cupon</h2>
       <p>Cupon fijo periodico + amortizacion. Sin ajuste. Todos los flujos son conocidos de antemano. El caso mas limpio de Newton-Raphson.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--green)">● OMS: 4 BOTEs listados (TTD26, TTJ26, TTM26, TTS26) — ejemplo con TTS26</p>
     </div>
 
     <div class="card" style="border-left:3px solid var(--text-2)">
@@ -801,10 +805,87 @@ tir_pct = tir * 100
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>Flujos del BOTE:</strong> confirmar cupon y fechas de pago contra prospecto. TTS26 paga cupon semestral del 17% anual (8.50 por semestre por 100 VN).<br>
-      ② <strong>Duration:</strong> mide sensibilidad a tasas. Si Duration = 1.5, una suba de 1% en tasa baja el precio ~1.5%. ¿La mostramos al usuario?<br>
-      ③ <strong>Precio limpio vs sucio:</strong> el BOTE devenga intereses diarios. ¿El precio del OMS incluye intereses corridos? Confirmar con mesa.
+      <div class="note-title">Validar con negocio — calculos BOTE</div>
+      ① Confirmar que <strong>Precio/100 = Σ[flujo(i) / (1+r)^t(i)]</strong> — Newton-Raphson converge.<br>
+      ② Confirmar que <strong>Duration = Σ[t(i) × VP(i)] / Σ[VP(i)]</strong>. Si Duration = 1.5, suba de 1% en tasa → baja de ~1.5% en precio.<br>
+      ③ Confirmar que los flujos son <strong>monto fijo por 100 VN</strong> (cupon + amortizacion en el ultimo).
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ SOBERANOS ARS ════════════════════ -->
+<section id="soberanos">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR / GLOBAL</span> Soberanos en ARS</h2>
+      <p>Bonos soberanos con flujos en USD, operados en pesos. Ley local (AL = Bonar) vs Ley NY (GD = Global). Mismo calculo que BOTE: Newton-Raphson sobre flujos fijos.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--green)">● OMS: 5 Bonares (AL29, AL30, AL35, AL41, AE38) + 6 Globales (GD29, GD30, GD35, GD38, GD41, GD46) — ejemplo con AL30</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span> en ARS. En data912: <code style="color:var(--accent)">AL30</code> (ARS, en miles: ~85860 → dividir por 1000).<br>
+        <strong>Flujos en USD</strong> → <span class="badge badge-cnv">CNV</span> fijos. Cupon + amortizacion por 100 VN. AL30 y GD30 tienen los mismos flujos.<br>
+        <strong>Para TIR en USD</strong> → se necesita convertir precio ARS a USD. Para eso se usa el CCL implicito o el precio del ticker D (ej: AL30D).<br><br>
+        <strong>Que desarrollar:</strong> ① Mismo Newton-Raphson que BOTE ② Convertir precio ARS a USD para TIR en dolares ③ Duration.<br>
+        <strong>Mismo calculo que BOTE</strong> pero los flujos son en USD y el precio viene en ARS.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="comment">// Flujos en USD por 100 VN (cupon + amortizacion, fijos)</span><br>
+        <span class="var-calc">TIR</span> <span class="op">→ Newton-Raphson:</span> <span class="var-oms">precio_usd</span> <span class="op">= Σ[</span> <span class="var-cnv">flujo(i)</span> <span class="op">/ (1+r)^t(i) ]</span><br>
+        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio_usd</span> <span class="op">/ VT × 100</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — AL30 <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio ARS (por 100 VN)</label>
+          <input type="number" id="sob-precio" value="85.86" step="0.01" oninput="calcSoberanos()">
+        </div>
+      </div>
+
+      <div class="card-title mt-24">Flujos futuros AL30 en USD (por 100 VN)</div>
+      <table class="flow-table" id="sob-flows"></table>
+      <div class="steps" id="sob-steps"></div>
+      <div class="results-grid" id="sob-results"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formula teorica</div>
+      <div class="formula-math">
+<span style="color:var(--text-3)">// Mismo Newton-Raphson que BOTE, flujos en USD</span><br>
+Precio_USD = Σ [ Flujo_USD(i) / (1 + r)<sup>t(i)</sup> ] &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">resolver r = TIR</span><br><br>
+<span style="color:var(--text-3)">// Si el precio viene en ARS, convertir primero</span><br>
+Precio_USD = Precio_ARS / TC_implicito<br>
+Paridad = Precio_USD / VT × 100
+      </div>
+      <div class="formula-math" style="margin-top:8px">
+<span style="color:var(--text-3)"># Python — identico a BOTE</span><br>
+flujos = [{"fecha": "2026-07-09", "monto": 8.27}, ...]  <span style="color:var(--text-3)"># USD por 100 VN</span><br>
+precio_usd = precio_ars / tc_implicito<br>
+tir = brentq(lambda r: valor_presente(r, flujos, sett) - precio_usd/100, -0.5, 2.0) * 100
+      </div>
+    </div>
+
+    <div class="note-dev">
+      <div class="note-title">Nota dev</div>
+      <strong>Precio en ARS:</strong> data912 devuelve AL30 en miles de ARS (~85860). Dividir por 1000 → 85.86 por 100 VN.<br>
+      <strong>Para TIR en USD:</strong> necesitas convertir ARS → USD. Opciones: usar TC oficial (BCRA serie 4), o calcular implicito desde AL30 ARS / AL30D USD.<br>
+      <strong>Flujos identicos:</strong> AL30 y GD30 tienen exactamente los mismos flujos. Solo cambia la ley (local vs NY) y el precio.
+    </div>
+
+    <div class="note-biz">
+      <div class="note-title">Validar con negocio — calculos Soberanos</div>
+      ① Confirmar que los flujos en USD son <strong>cupon + amortizacion por 100 VN</strong>.<br>
+      ② Confirmar el metodo de <strong>conversion ARS → USD</strong> para calcular TIR.<br>
+      ③ Confirmar que <strong>Newton-Raphson</strong> se aplica igual que en BOTE (misma funcion, distintos flujos).
     </div>
   </div>
 </section>
@@ -815,6 +896,7 @@ tir_pct = tir * 100
     <div class="section-header">
       <h2><span class="badge badge-lelink">LELINK</span> Letras Dolar Linked</h2>
       <p>El capital se ajusta por el tipo de cambio oficial (A3500). Cobertura contra devaluacion.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--amber)">○ LELINK: preparado para listar (0 en OMS, ejemplo con D30A6)</p>
     </div>
 
     <div class="card" style="border-left:3px solid var(--green)">
@@ -892,11 +974,11 @@ paridad = (precio / pago_ajustado) * 100
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>TC de emision:</strong> confirmar contra comunicacion A3500 de BCRA del dia de licitacion. D30A6 = $1197.50.<br>
-      ② <strong>TIR en pesos vs USD:</strong> la TIR que calculamos es en ARS (incluye devaluacion). ¿Mostramos tambien un estimado en USD? Eso requiere supuesto de devaluacion.<br>
-      ③ <strong>Paridad bajo 100%:</strong> significa que el mercado espera que el peso se devalue MAS de lo que ya refleja el coeficiente actual. ¿Explicamos esto al usuario?<br>
-      ④ <strong>Crawling peg:</strong> ¿usamos la tasa de crawling actual para proyectar? ¿O dejamos que el usuario la cambie?
+      <div class="note-title">Validar con negocio — calculos LELINK</div>
+      ① Confirmar que <strong>coef_DL = TC_actual / TC_emision</strong>.<br>
+      ② Confirmar que <strong>pago_ajustado = 100 × coef_DL</strong>.<br>
+      ③ Confirmar que la TIR resultante es <strong>en ARS</strong> (incluye devaluacion). TIR_USD ≈ TIR_ARS − devaluacion.<br>
+      ④ Confirmar que <strong>Paridad = precio / (100 × coef_DL) × 100</strong>.
     </div>
   </div>
 </section>
@@ -907,6 +989,7 @@ paridad = (precio / pago_ajustado) * 100
     <div class="section-header">
       <h2><span class="badge badge-letam">LETAM</span> Letras ajustadas por TAMAR</h2>
       <p>Ajustado por TAMAR — la tasa mayorista de plazos fijos. BCRA publica la tasa diaria, nosotros la acumulamos.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--green)">● OMS: 4 LETAMs listadas (M10N5, M16E6, M31G6, M31L5) — ejemplo con M31G6</p>
     </div>
 
     <div class="card" style="border-left:3px solid var(--amber)">
@@ -1011,11 +1094,11 @@ tir = (pago_estimado / precio) ** (365 / dias_al_vto) - 1
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>¿Que serie TAMAR?:</strong> hay TAMAR bancos privados (serie 44) y TAMAR todos (serie 135). ¿Cual se usa para liquidar los instrumentos? Confirmar con el area de operaciones.<br>
-      ② <strong>TIR estimada:</strong> es una estimacion basada en TAMAR constante. Si TAMAR baja, el rendimiento real sera menor. ¿Mostramos disclaimer? ¿Permitimos que el usuario cambie la TAMAR proyectada?<br>
-      ③ <strong>Comparacion LETAM vs LECAP:</strong> si TIR LETAM &lt; TIR LECAP, el mercado espera que TAMAR baje. Si TIR LETAM &gt; TIR LECAP, espera que suba. ¿Mostramos esta comparacion?<br>
-      ④ <strong>Fecha de emision:</strong> confirmar para cada LETAM. Determina desde cuando se acumula TAMAR.
+      <div class="note-title">Validar con negocio — calculos LETAM</div>
+      ① Confirmar que <strong>coef_TAMAR = Π(1 + tasa_dia/100/365)</strong> se acumula dia por dia desde emision.<br>
+      ② Confirmar que <strong>pago_estimado = 100 × coef_historico × coef_proyectado</strong>.<br>
+      ③ Confirmar que la TIR es <strong>estimada</strong> (asume TAMAR constante hacia adelante).<br>
+      ④ Confirmar que se usa <strong>BCRA serie 44</strong> (bancos privados TNA) para acumular.
     </div>
   </div>
 </section>
@@ -1026,6 +1109,7 @@ tir = (pago_estimado / precio) ** (365 / dias_al_vto) - 1
     <div class="section-header">
       <h2><span class="badge badge-letam">BONTAM</span> Bonos ajustados por TAMAR</h2>
       <p>El mas complejo. Combina cupones periodicos (TAMAR + spread), amortizacion de capital, y tasa variable.</p>
+      <p class="text-sm mono" style="margin-top:8px;color:var(--amber)">○ BONTAM: preparado para listar (0 en OMS, ejemplo con TMF27)</p>
     </div>
 
     <div class="card" style="border-left:3px solid var(--amber)">
@@ -1106,11 +1190,11 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
     </div>
 
     <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>Spread:</strong> confirmar spread de cada BONTAM contra prospecto. TMF27 tiene spread 0% (TAMAR pura).<br>
-      ② <strong>TAMAR del periodo:</strong> ¿se acumula la TAMAR de cada dia dentro del semestre, o se usa el promedio? Confirmar con operaciones como se liquida el cupon.<br>
-      ③ <strong>TIR estimada:</strong> SIEMPRE es estimacion. ¿Mostramos escenarios? (ej: TAMAR sube 5%, TAMAR baja 5%, TAMAR constante).<br>
-      ④ <strong>Prioridad:</strong> BONTAM es el instrumento mas complejo. ¿Es prioritario o podemos dejarlo para fase 2?
+      <div class="note-title">Validar con negocio — calculos BONTAM</div>
+      ① Confirmar que <strong>cupon = VR × (TAMAR_acum + spread) × base</strong>.<br>
+      ② Confirmar que <strong>flujo = cupon + amortizacion</strong> y se aplica Newton-Raphson sobre flujos proyectados.<br>
+      ③ Confirmar que la TIR es <strong>siempre estimada</strong> (depende de TAMAR futura).<br>
+      ④ Confirmar que <strong>VR se recalcula</strong> restando amortizaciones pagadas antes de cada flujo.
     </div>
   </div>
 </section>
@@ -1146,6 +1230,10 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
       <tr>
         <td><span class="badge badge-bote">BOTE</span></td><td>Si</td><td>Si</td><td>Si</td>
         <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR/GLOBAL</span></td><td>—</td><td>Si</td><td>Si</td>
+        <td>Newton-Raphson</td><td>Ninguno (flujos USD)</td><td>—</td>
       </tr>
       <tr>
         <td><span class="badge badge-lelink">LELINK</span></td><td>Si (ARS)</td><td>Si (ARS)</td><td>Si</td>
@@ -1328,6 +1416,53 @@ function calcBoncer() {
     { label: 'Duration', value: fmt(dur, 2) + ' a', cls: '' },
     { label: 'Paridad', value: fmtPct(par) },
     { label: 'Coef CER', value: fmt(coef, 4) + 'x' },
+  ]);
+}
+
+// ─── SOBERANOS ARS Calculator ───
+function calcSoberanos() {
+  const precioARS = val('sob-precio');
+  if (!precioARS) return;
+  const today = new Date();
+
+  const flujosRaw = [
+    { fecha: '2026-07-09', monto: 8.27 }, { fecha: '2027-01-09', monto: 8.24 },
+    { fecha: '2027-07-09', monto: 8.21 }, { fecha: '2028-01-09', monto: 8.42 },
+    { fecha: '2028-07-09', monto: 8.35 }, { fecha: '2029-01-09', monto: 8.28 },
+    { fecha: '2029-07-09', monto: 8.21 }, { fecha: '2030-01-09', monto: 8.14 },
+    { fecha: '2030-07-09', monto: 8.07 },
+  ];
+
+  const futureFlows = flujosRaw
+    .map(f => ({ fecha: new Date(f.fecha), monto: f.monto }))
+    .filter(f => f.fecha > today);
+  const flujosNorm = futureFlows.map(f => ({ fecha: f.fecha, monto: f.monto / 100 }));
+
+  $('sob-flows').innerHTML = `
+    <tr><th>Fecha</th><th>Flujo USD (por 100 VN)</th><th>Futuro?</th></tr>
+    ${flujosRaw.map(f => {
+      const fut = new Date(f.fecha) > today;
+      return `<tr${fut ? '' : ' style="opacity:0.4"'}><td>${f.fecha}</td><td>$${f.monto.toFixed(2)}</td><td>${fut ? '✓' : '—'}</td></tr>`;
+    }).join('')}`;
+
+  // Nota: precio en ARS, flujos en USD — necesitamos TC para TIR en USD
+  // Como aproximacion, mostramos TIR sobre precio ARS normalizado
+  const precioNorm = precioARS / 100;
+  const tir = calcYTM(precioNorm, flujosNorm, today);
+  const dur = calcMacDuration(flujosNorm, today, tir);
+  const sumaFlujos = futureFlows.reduce((s,f) => s + f.monto, 0);
+
+  renderSteps($('sob-steps'), [
+    { formula: `Precio ARS normalizado = ${fmt(precioARS)} / 100`, result: fmt(precioNorm, 4) },
+    { formula: `Flujos futuros: ${futureFlows.length} pagos, total $${fmt(sumaFlujos)} USD`, result: '' },
+    { formula: `TIR (Newton-Raphson, precio en ARS / flujos USD)`, result: fmtPct(tir) },
+    { formula: `Duration Macaulay`, result: fmt(dur, 2) + ' anos' },
+  ]);
+
+  renderResults($('sob-results'), [
+    { label: 'TIR', value: fmtPct(tir), cls: tir > 0 ? 'positive' : 'negative' },
+    { label: 'Duration', value: fmt(dur, 2) + ' a' },
+    { label: 'Flujos pend.', value: futureFlows.length },
   ]);
 }
 
@@ -1646,13 +1781,16 @@ async function initLive() {
     // BONTAM TMF27
     if (prices.TMF27) $('btam-precio').value = prices.TMF27.price.toFixed(2);
 
+    // Soberanos ARS (AL30 viene en miles)
+    if (prices.AL30) $('sob-precio').value = (prices.AL30.price / 1000).toFixed(2);
+
     liveParts.push(`${priceCount} precios`);
   }
 
   console.log('Live data:', { cer, tamar, tc, priceCount });
 
   // Recalcular con datos frescos
-  calcLecap(); calcBoncer(); calcBote();
+  calcLecap(); calcBoncer(); calcBote(); calcSoberanos();
   calcLelink(); calcLetam(); calcBontam();
 
   // Banner
@@ -1668,6 +1806,7 @@ async function initLive() {
 calcLecap();
 calcBoncer();
 calcBote();
+calcSoberanos();
 calcLelink();
 calcLetam();
 calcBontam();
