@@ -1,5 +1,23 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-25 (noche 4) — Fix validate-formulas: datos sincronizados
+
+### Hallazgos de validate-formulas
+Las 6 reglas de validacion matematica PASAN (TNA<TIR, Newton-Raphson converge, paridad>0,
+duration<vencimiento, coeficientes coherentes, precio inverso roundtrip). Pero se encontraron
+inconsistencias entre los datos hardcodeados en la landing y instrumentos.json.
+
+### Fixes aplicados
+- **F1 (ALTO)**: BOTE TTS26 — fechas de flujos corregidas de Apr/Oct a Mar 18/Sep 18 (reales del prospecto)
+- **F2 (ALTO)**: BONTAM TMF27 — fechas corregidas a Aug 8/Feb 8, amortizaciones corregidas a 0/0/0.3333/0.6667 (era 0/0.25/0.25/0.50)
+- **F3 (BAJO)**: BOTE paridad — ahora se calcula desde VR real (no era `precio = par` no-op)
+- **F5 (INFO)**: BONCER TX26 — amortAcum ahora se calcula dinamicamente desde los 12 flujos historicos completos (era 0.40 hardcodeado que iba a quedar stale en mayo 2026)
+
+### Estado post-diagnostico
+Todos los hallazgos CRITICOS y ALTOS de los 3 diagnosticos (audit + cross-check + validate-formulas) estan corregidos. Quedan pendientes medios/bajos documentados en los reportes.
+
+---
+
 ## 2026-03-25 (noche 3) — Skills de diagnostico + fix de auditoria
 
 ### 4 skills creadas
