@@ -1,5 +1,21 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-25 (noche 2) — Mobile-first responsive
+
+### Responsive design
+- Breakpoint 768px: layout mobile completo
+- Breakpoint 420px: ajustes para pantallas chicas (iPhone SE, etc)
+- Origin strips apilan vertical en mobile
+- Calculator inputs full-width, font 16px (previene zoom en iOS)
+- Results grid 2x2 en mobile (era auto-fit)
+- Steps hacen wrap: formula arriba, resultado abajo (no se superponen)
+- Tablas (comparison, flow) con overflow-x scroll horizontal
+- Formulas y codigo legibles a 12-13px
+- Cards, notas, badges con padding/font reducido
+- Hero compacto (24px titulo en 768px, 20px en 420px)
+
+---
+
 ## 2026-03-25 (noche) — Inventario OMS, soberanos ARS, rastreo series BCRA
 
 ### Inventario OMS
