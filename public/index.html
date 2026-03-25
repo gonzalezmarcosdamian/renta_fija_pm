@@ -191,6 +191,7 @@
     .step {
       display: flex; gap: 12px; padding: 10px 0;
       border-bottom: 1px solid var(--border); font-size: 14px; align-items: baseline;
+      flex-wrap: wrap;
     }
     .step:last-child { border-bottom: none; }
     .step-num {
@@ -280,6 +281,62 @@
     }
     .api-live { background: var(--green-soft); color: var(--green); }
     .api-mock { background: var(--amber-soft); color: var(--amber); }
+
+    /* ─── Mobile First ─── */
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+
+      .hero { padding: 48px 0 32px; }
+      .hero h1 { font-size: 24px; }
+      .hero p { font-size: 15px; }
+
+      section { padding: 40px 0; }
+      .section-header h2 { font-size: 20px; flex-wrap: wrap; gap: 8px; }
+      .section-header p { font-size: 14px; }
+
+      .card { padding: 16px; }
+      .card-title { font-size: 12px; }
+
+      .formula-block { padding: 14px 16px; font-size: 13px; line-height: 1.7; }
+      .formula-math { font-size: 12px; padding: 10px 14px; line-height: 1.7; }
+
+      .origin-strip { flex-direction: column; gap: 8px; }
+      .origin-item { min-width: unset; }
+
+      .calc-grid { grid-template-columns: 1fr; gap: 10px; }
+      .calc-field input { font-size: 16px; padding: 12px; }
+
+      .results-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .result-item { padding: 12px; }
+      .result-item .value { font-size: 18px; }
+      .result-item .label { font-size: 10px; }
+
+      .step { font-size: 13px; gap: 8px; flex-wrap: wrap; }
+      .step-formula { font-size: 12px; word-break: break-all; }
+      .step-result { margin-left: 0; margin-top: 4px; }
+
+      .code-block pre { font-size: 11px; padding: 12px 14px; }
+
+      .comparison-table { font-size: 12px; }
+      .comparison-table th, .comparison-table td { padding: 8px 10px; }
+      .flow-table { font-size: 12px; }
+      .flow-table th, .flow-table td { padding: 6px 8px; }
+
+      .note-dev, .note-biz, .note { font-size: 12px; padding: 12px; }
+
+      .badge { font-size: 10px; padding: 2px 6px; }
+    }
+
+    @media (max-width: 420px) {
+      .container { padding: 0 12px; }
+      .hero h1 { font-size: 20px; }
+      .results-grid { grid-template-columns: 1fr 1fr; }
+      .result-item .value { font-size: 16px; }
+      .formula-block { font-size: 12px; }
+      .calc-field input { font-size: 16px; } /* prevent zoom on iOS */
+      .comparison-table { display: block; overflow-x: auto; }
+      .flow-table { display: block; overflow-x: auto; }
+    }
   </style>
 </head>
 <body>
