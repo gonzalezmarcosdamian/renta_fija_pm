@@ -1489,13 +1489,27 @@ function calcBoncer() {
 
   const coef = cerAct / cerEm;
   const today = getSettlement(); // T+1
-  const flujosDef = [
+  // Flujos completos TX26 (de instrumentos.json) — incluye pasados para calcular VR
+  const todosLosFlujos = [
+    { fecha: '2021-05-10', amort: 0.00, tasa: tasa, base: 0.5 },
+    { fecha: '2021-11-09', amort: 0.00, tasa: tasa, base: 0.5 },
+    { fecha: '2022-05-09', amort: 0.00, tasa: tasa, base: 0.5 },
+    { fecha: '2022-11-09', amort: 0.00, tasa: tasa, base: 0.5 },
+    { fecha: '2023-05-09', amort: 0.00, tasa: tasa, base: 0.5 },
+    { fecha: '2023-11-09', amort: 0.10, tasa: tasa, base: 0.5 },
+    { fecha: '2024-05-09', amort: 0.10, tasa: tasa, base: 0.5 },
+    { fecha: '2024-11-11', amort: 0.10, tasa: tasa, base: 0.5 },
+    { fecha: '2025-05-09', amort: 0.10, tasa: tasa, base: 0.5 },
     { fecha: '2025-11-10', amort: 0.20, tasa: tasa, base: 0.5 },
     { fecha: '2026-05-11', amort: 0.20, tasa: tasa, base: 0.5 },
     { fecha: '2026-11-09', amort: 0.20, tasa: tasa, base: 0.5 },
   ];
-
-  let amortAcum = 0.40; // ya amortizo 40% (flujos pasados)
+  // Calcular amortAcum dinamicamente (suma de amortizaciones pasadas)
+  let amortAcum = 0;
+  for (const f of todosLosFlujos) {
+    if (new Date(f.fecha) <= today) amortAcum += f.amort;
+  }
+  const flujosDef = todosLosFlujos.filter(f => new Date(f.fecha) > today);
   const flowsHTML = [];
   const flowsCalc = [];
 
@@ -1522,7 +1536,7 @@ function calcBoncer() {
   const precioNorm = precio / 100;
   const tir = calcYTM(precioNorm, flowsCalc, today);
   const dur = calcMacDuration(flowsCalc, today, tir);
-  const vr = 0.60;
+  const vr = 1 - amortAcum; // calculado dinamicamente
   const vt = vr * coef * 100;
   const par = (precio / vt) * 100;
 
@@ -1595,27 +1609,31 @@ function calcBote() {
   if (!precio) return;
   const today = getSettlement(); // T+1
 
-  const flujos = [
-    { fecha: new Date('2025-04-15'), monto: 8.50 / 100 },
-    { fecha: new Date('2025-10-15'), monto: 8.50 / 100 },
-    { fecha: new Date('2026-04-15'), monto: 8.50 / 100 },
-    { fecha: new Date('2026-10-15'), monto: 108.50 / 100 },
+  // Flujos reales TTS26 (de instrumentos.json)
+  const flujosRaw = [
+    { fecha: '2025-03-18', monto: 8.50 },
+    { fecha: '2025-09-18', monto: 8.50 },
+    { fecha: '2026-03-18', monto: 8.50 },
+    { fecha: '2026-09-18', monto: 108.50 },
   ];
+  const flujos = flujosRaw.map(f => ({ fecha: new Date(f.fecha), monto: f.monto / 100 }));
   const futureFlows = flujos.filter(f => f.fecha > today);
 
   $('bote-flows').innerHTML = `
     <tr><th>Fecha</th><th>Cupon</th><th>Amort</th><th>Total</th><th>Futuro?</th></tr>
-    <tr><td>2025-04-15</td><td>$8.50</td><td>—</td><td>$8.50</td>
-      <td>${new Date('2025-04-15') > today ? '✓' : '—'}</td></tr>
-    <tr><td>2025-10-15</td><td>$8.50</td><td>—</td><td>$8.50</td>
-      <td>${new Date('2025-10-15') > today ? '✓' : '—'}</td></tr>
-    <tr><td>2026-04-15</td><td>$8.50</td><td>—</td><td>$8.50</td><td>✓</td></tr>
-    <tr class="highlight"><td>2026-10-15</td><td>$8.50</td><td>$100</td><td>$108.50</td><td>✓</td></tr>`;
+    ${flujosRaw.map(f => {
+      const fut = new Date(f.fecha) > today;
+      const isLast = f.monto > 100;
+      return `<tr${isLast ? ' class="highlight"' : ''}><td>${f.fecha}</td><td>$8.50</td><td>${isLast ? '$100' : '—'}</td><td>$${f.monto.toFixed(2)}</td><td>${fut ? '✓' : '—'}</td></tr>`;
+    }).join('')}`;
 
   const precioNorm = precio / 100;
   const tir = calcYTM(precioNorm, futureFlows, today);
   const dur = calcMacDuration(futureFlows, today, tir);
-  const par = (precio / 100) * 100;
+  // VR = 1 - amortizaciones pagadas (BOTE TTS26: bullet al vencimiento, VR=1 hasta ese dia)
+  const vrBote = 1 - flujosRaw.filter(f => new Date(f.fecha) <= today && f.monto > 100).length * 1;
+  const vtBote = vrBote * 100; // sin ajuste
+  const par = (precio / vtBote) * 100;
 
   renderSteps($('bote-steps'), [
     { formula: `Flujos futuros: ${futureFlows.length} pagos`, result: '' },
@@ -1707,11 +1725,12 @@ function calcBontam() {
   const today = getSettlement(); // T+1
   const tasaEfectiva = tamarTNA + spread;
 
+  // Flujos reales TMF27 (de instrumentos.json)
   const flujosDef = [
-    { fecha: '2025-09-15', amort: 0.00, base: 0.5 },
-    { fecha: '2026-03-15', amort: 0.25, base: 0.5 },
-    { fecha: '2026-09-15', amort: 0.25, base: 0.5 },
-    { fecha: '2027-03-15', amort: 0.50, base: 0.5 },
+    { fecha: '2025-08-08', amort: 0.00, base: 0.5 },
+    { fecha: '2026-02-08', amort: 0.00, base: 0.5 },
+    { fecha: '2026-08-08', amort: 0.3333, base: 0.5 },
+    { fecha: '2027-02-08', amort: 0.6667, base: 0.5 },
   ];
 
   let amortAcum = 0;
