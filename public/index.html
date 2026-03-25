@@ -302,7 +302,6 @@
     <a href="#apis">APIs</a>
     <a href="#lecap" class="active">LECAP</a>
     <a href="#boncer">BONCER</a>
-    <a href="#soberanos">Soberanos USD</a>
     <a href="#bote">BOTE</a>
     <a href="#lelink">LELINK</a>
     <a href="#letam">LETAM</a>
@@ -381,7 +380,7 @@
         </tr>
         <tr>
           <td style="font-family:var(--mono);font-size:12px">data912.com/live/arg_bonds</td>
-          <td>Bonos: BONCAP, BONCER, BOTE, BONTAM, Soberanos</td><td>T30J6, TX26, TTS26, TMF27, AL30D</td>
+          <td>Bonos: BONCAP, BONCER, BOTE, BONTAM</td><td>T30J6, TX26, TTS26, TMF27</td>
         </tr>
       </table>
 
@@ -392,8 +391,6 @@
           <tr><td>LECAP, BONCAP, LECER, LETAM, BONTAM</td><td>Precio por 100 VN</td><td>Usar directo</td></tr>
           <tr><td>BONCER TX26</td><td>~1299 (por 10 VN)</td><td>Dividir por 10</td></tr>
           <tr><td>LELINK D30A6</td><td>~137220 (miles ARS)</td><td>Dividir por 1000</td></tr>
-          <tr><td>Soberanos ARS (AL30)</td><td>~85860 (miles ARS)</td><td>Para CCL</td></tr>
-          <tr><td>Soberanos USD (AL30D)</td><td>~61.13 (USD directo)</td><td>Para TIR</td></tr>
         </table>
       </div>
 
@@ -417,7 +414,6 @@
         <tr><td>BONCER</td><td>+ cer_emision + cronograma flujos (fecha, amort, tasa, base)</td><td>TX26: 12 flujos</td></tr>
         <tr><td>BONTAM</td><td>+ fecha_emision + spread + cronograma (fecha, amort, base)</td><td>TMF27: spread=0%, 4 flujos</td></tr>
         <tr><td>BOTE</td><td>+ cronograma flujos (fecha, monto fijo)</td><td>TTS26: 4 flujos</td></tr>
-        <tr><td>Soberanos USD</td><td>+ ley + par + cronograma (fecha, monto USD)</td><td>AL30: ley local, par=GD30, 9 flujos</td></tr>
       </table>
 
       <div class="note-biz">
@@ -683,122 +679,7 @@ tir = brentq(lambda r: pv(r) - precio/100, -0.5, 2.0) * 100
   </div>
 </section>
 
-<!-- ════════════════════ SOBERANOS USD ════════════════════ -->
-<section id="soberanos">
-  <div class="container">
-    <div class="section-header">
-      <h2><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR / GLOBAL</span> Soberanos en USD</h2>
-      <p>Bonos soberanos en dolares. Ley local (AL = Bonar) vs Ley NY (GD = Global). Mismos flujos, distinta jurisdiccion. Precio en USD.</p>
-    </div>
-
-    <div class="card" style="border-left:3px solid var(--green)">
-      <div class="card-title">Para el equipo de desarrollo</div>
-      <p class="text-sm text-2" style="line-height:1.8">
-        <strong>Precio en USD</strong> → <span class="badge badge-oms">OMS</span>. En data912: usar ticker con sufijo <code style="color:var(--accent)">D</code> (MEP). Ej: <code>AL30D</code> = 61.13 USD. Sin sufijo es en ARS.<br>
-        <strong>Precio en ARS</strong> → Para CCL implicito: <code>CCL = AL30 (ARS) / AL30D (USD)</code>.<br>
-        <strong>Flujos en USD</strong> → <span class="badge badge-cnv">CNV</span> fijos, del prospecto. Cupon + amortizacion por 100 VN. AL30 y GD30 tienen mismos flujos.<br><br>
-        <strong>Que desarrollar:</strong> ① Mismo Newton-Raphson que BOTE pero en USD ② Comparar TIR local vs NY → spread = prima jurisdiccional ③ CCL implicito desde par ARS/USD ④ Duration.<br>
-        <strong>Mismo calculo que BOTE</strong> pero en dolares. Complejidad en las unidades de data912 (miles para ARS, directo para USD).
-      </p>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Formulas (igual que BOTE pero en USD)</div>
-      <div class="formula-block">
-        <span class="comment">// Flujos en USD por 100 VN (cupon + amortizacion)</span><br>
-        <span class="var-calc">TIR</span> <span class="op">→ Newton-Raphson:</span> <span class="var-oms">precio_usd</span> <span class="op">= Σ[</span> <span class="var-cnv">flujo(i)</span> <span class="op">/ (1+r)^t(i) ]</span><br>
-        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio_usd</span> <span class="op">/ VT × 100</span><br>
-        <span class="comment">// CCL implicito = precio_ARS / precio_USD</span><br>
-        <span class="var-calc">CCL</span> <span class="op">=</span> <span class="var-oms">AL30 (ARS)</span> <span class="op">/</span> <span class="var-oms">AL30D (USD)</span>
-      </div>
-    </div>
-
-    <div class="origin-strip">
-      <div class="origin-item">
-        <span class="badge badge-oms">OMS</span>
-        <div><span class="label">AL30D (USD MEP)</span><span class="value" id="sob-al30d">61.13</span></div>
-      </div>
-      <div class="origin-item">
-        <span class="badge badge-oms">OMS</span>
-        <div><span class="label">GD30D (USD MEP)</span><span class="value" id="sob-gd30d">62.99</span></div>
-      </div>
-      <div class="origin-item">
-        <span class="badge badge-cnv">CNV</span>
-        <div><span class="label">Flujos (USD por 100 VN)</span><span class="value">9 pagos</span></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Ejemplo interactivo — AL30 vs GD30 <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
-      <div class="calc-grid">
-        <div class="calc-field">
-          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> AL30D (USD)</label>
-          <input type="number" id="sob-precio-al" value="61.13" step="0.01" oninput="calcSoberanos()">
-        </div>
-        <div class="calc-field">
-          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> GD30D (USD)</label>
-          <input type="number" id="sob-precio-gd" value="62.99" step="0.01" oninput="calcSoberanos()">
-        </div>
-      </div>
-
-      <div class="card-title mt-24">Flujos futuros en USD (por 100 VN) — mismo cronograma</div>
-      <table class="flow-table" id="sob-flows"></table>
-      <div class="steps" id="sob-steps"></div>
-      <div class="results-grid" id="sob-results"></div>
-    </div>
-
-    <div class="note">AL30 y GD30 tienen los <strong>mismos flujos</strong>. La diferencia de precio es la prima por jurisdiccion: ley NY protege mejor ante un default. Comparar sus TIR muestra cuanto "paga" el mercado por esa proteccion.</div>
-
-    <div class="code-block">
-      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
-      <pre>
-// Soberanos: misma funcion calcYTM que BOTE
-const flujos = bondConfig.flujos
-  .map(f => ({ fecha: new Date(f.fecha), monto: f.monto }))
-  .filter(f => f.fecha > hoy);
-const tir = calcYTM(precioUSD, flujos, settlement);
-const duration = calcDuration(flujos, settlement, tir);
-
-// CCL implicito desde AL30
-const ccl = precioARS_AL30 / precioUSD_AL30D;</pre>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Formula teorica</div>
-      <div class="formula-math">
-<span style="color:var(--text-3)">// Misma TIR que BOTE, pero precio y flujos en USD</span><br>
-Precio_USD = Σ [ Flujo_USD(i) / (1 + r)<sup>t(i)</sup> ] &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">resolver r</span><br><br>
-CCL_implicito = Precio_ARS(AL30) / Precio_USD(AL30D)<br>
-MEP_implicito = Precio_ARS(AL30) / Precio_USD(AL30D)  <span style="color:var(--text-3)">// D = MEP, C = cable</span><br><br>
-Spread_jurisdiccional = TIR(AL30) − TIR(GD30) &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">en basis points</span>
-      </div>
-      <div class="formula-math" style="margin-top:8px">
-<span style="color:var(--text-3)"># Python</span><br>
-flujos = [{"fecha": "2026-07-09", "monto": 8.27}, ...]<br>
-tir_al30 = calcular_tir(precio_usd=61.13, flujos=flujos)<br>
-tir_gd30 = calcular_tir(precio_usd=62.99, flujos=flujos)<br>
-spread = (tir_al30 - tir_gd30) * 100  <span style="color:var(--text-3)"># en bps</span><br>
-ccl = precio_ars_al30 / precio_usd_al30d
-      </div>
-    </div>
-
-    <div class="note-dev">
-      <div class="note-title">Nota dev</div>
-      <strong>Tickers data912:</strong> sin sufijo = ARS (ej: AL30 = $85.860 ARS). Con <code>D</code> = USD MEP (AL30D = 61.13 USD). Con <code>C</code> = USD Cable/CCL (AL30C = 59.20 USD).<br>
-      <strong>Para TIR:</strong> usar siempre precio en USD (ticker con D).<br>
-      <strong>CCL vs MEP:</strong> CCL = ticker C (transferencia al exterior). MEP = ticker D (mercado local). La diferencia es la brecha.<br>
-      <strong>Flujos identicos:</strong> AL30 y GD30 tienen exactamente los mismos flujos — solo cambia ley y precio.
-    </div>
-
-    <div class="note-biz">
-      <div class="note-title">Nota negocio — para validar</div>
-      ① <strong>Flujos:</strong> validar cronograma contra prospecto. Los montos incluyen cupon + amortizacion por cada 100 VN. AL30 y GD30 deben tener los mismos flujos.<br>
-      ② <strong>Spread jurisdiccional:</strong> la diferencia de TIR entre ley local (AL) y ley NY (GD) refleja el riesgo de que Argentina cambie las condiciones del bono. ¿Lo mostramos al usuario?<br>
-      ③ <strong>CCL:</strong> ¿mostramos el tipo de cambio implicito? Es una metrica clave pero sensible regulatoriamente.<br>
-      ④ <strong>Par de bonos:</strong> AL30↔GD30, AL29↔GD29, AE38↔GD38. Confirmar los pares.
-    </div>
-  </div>
-</section>
+<!-- Soberanos USD (AL30, GD30) — fuera de scope, solo instrumentos ARS -->
 
 <!-- ════════════════════ BOTE ════════════════════ -->
 <section id="bote">
@@ -813,7 +694,7 @@ ccl = precio_ars_al30 / precio_usd_al30d
       <p class="text-sm text-2" style="line-height:1.8">
         <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: ticker directo (<code style="color:var(--accent)">TTS26</code>), campo <code>c</code>.<br>
         <strong>Cronograma de flujos</strong> → <span class="badge badge-cnv">CNV</span> fijo. Cada flujo es un monto fijo en pesos (cupon + amort). El ultimo incluye devolucion de capital.<br><br>
-        <strong>Que desarrollar:</strong> ① Newton-Raphson para TIR (misma funcion que soberanos/BONCER) ② Filtrar solo flujos futuros ③ Macaulay Duration.<br>
+        <strong>Que desarrollar:</strong> ① Newton-Raphson para TIR (misma funcion que BONCER) ② Filtrar solo flujos futuros ③ Macaulay Duration.<br>
         <strong>El caso mas limpio de Newton-Raphson.</strong> Sin coeficientes, sin ajustes. Ideal para validar tu implementacion antes de pasar a CER/TAMAR.
       </p>
     </div>
@@ -1263,14 +1144,6 @@ tir = brentq(lambda r: valor_presente(r, flujos_estimados, sett) - precio_norm, 
         <td>Newton-Raphson</td><td>CER</td><td>30</td>
       </tr>
       <tr>
-        <td><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR</span></td><td>—</td><td>Si (USD)</td><td>Si</td>
-        <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
-      </tr>
-      <tr>
-        <td><span class="badge" style="background:var(--green-soft);color:var(--green)">GLOBAL</span></td><td>—</td><td>Si (USD)</td><td>Si</td>
-        <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
-      </tr>
-      <tr>
         <td><span class="badge badge-bote">BOTE</span></td><td>Si</td><td>Si</td><td>Si</td>
         <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
       </tr>
@@ -1455,56 +1328,6 @@ function calcBoncer() {
     { label: 'Duration', value: fmt(dur, 2) + ' a', cls: '' },
     { label: 'Paridad', value: fmtPct(par) },
     { label: 'Coef CER', value: fmt(coef, 4) + 'x' },
-  ]);
-}
-
-// ─── SOBERANOS Calculator ───
-function calcSoberanos() {
-  const precioAL = val('sob-precio-al');
-  const precioGD = val('sob-precio-gd');
-  if (!precioAL && !precioGD) return;
-  const today = new Date();
-
-  // Flujos GD30/AL30 (identicos, en USD por 100 VN)
-  const flujosRaw = [
-    { fecha: '2026-07-09', monto: 8.27 }, { fecha: '2027-01-09', monto: 8.24 },
-    { fecha: '2027-07-09', monto: 8.21 }, { fecha: '2028-01-09', monto: 8.42 },
-    { fecha: '2028-07-09', monto: 8.35 }, { fecha: '2029-01-09', monto: 8.28 },
-    { fecha: '2029-07-09', monto: 8.21 }, { fecha: '2030-01-09', monto: 8.14 },
-    { fecha: '2030-07-09', monto: 8.07 },
-  ];
-
-  const flujosFuturos = flujosRaw
-    .map(f => ({ fecha: new Date(f.fecha), monto: f.monto }))
-    .filter(f => f.fecha > today);
-
-  const flujosNorm = flujosFuturos.map(f => ({ fecha: f.fecha, monto: f.monto / 100 }));
-
-  // Tabla de flujos
-  $('sob-flows').innerHTML = `
-    <tr><th>Fecha</th><th>Cupon + Amort (USD)</th><th>Futuro?</th></tr>
-    ${flujosRaw.map(f => {
-      const fut = new Date(f.fecha) > today;
-      return `<tr${fut ? '' : ' style="opacity:0.4"'}><td>${f.fecha}</td><td>$${f.monto.toFixed(2)}</td><td>${fut ? '✓' : '—'}</td></tr>`;
-    }).join('')}`;
-
-  const tirAL = precioAL ? calcYTM(precioAL / 100, flujosNorm, today) : 0;
-  const tirGD = precioGD ? calcYTM(precioGD / 100, flujosNorm, today) : 0;
-  const durAL = precioAL ? calcMacDuration(flujosNorm, today, tirAL) : 0;
-  const spread = tirAL - tirGD; // local rinde mas (mas riesgo)
-
-  renderSteps($('sob-steps'), [
-    { formula: `AL30 TIR (Newton-Raphson, precio USD ${fmt(precioAL)})`, result: fmtPct(tirAL) },
-    { formula: `GD30 TIR (Newton-Raphson, precio USD ${fmt(precioGD)})`, result: fmtPct(tirGD) },
-    { formula: `Spread ley local vs NY = ${fmt(tirAL)} - ${fmt(tirGD)}`, result: fmt(spread, 0) + ' bps' },
-    { formula: `Duration Macaulay`, result: fmt(durAL, 2) + ' anos' },
-  ]);
-
-  renderResults($('sob-results'), [
-    { label: 'TIR AL30', value: fmtPct(tirAL), cls: 'positive' },
-    { label: 'TIR GD30', value: fmtPct(tirGD), cls: 'positive' },
-    { label: 'Spread', value: fmt(spread * 100, 0) + ' bps', cls: spread > 0 ? 'estimate' : '' },
-    { label: 'Duration', value: fmt(durAL, 2) + ' a' },
   ]);
 }
 
@@ -1823,17 +1646,13 @@ async function initLive() {
     // BONTAM TMF27
     if (prices.TMF27) $('btam-precio').value = prices.TMF27.price.toFixed(2);
 
-    // Soberanos USD (precio con D = en USD)
-    if (prices.AL30D) $('sob-precio-al').value = prices.AL30D.price.toFixed(2);
-    if (prices.GD30D) $('sob-precio-gd').value = prices.GD30D.price.toFixed(2);
-
     liveParts.push(`${priceCount} precios`);
   }
 
   console.log('Live data:', { cer, tamar, tc, priceCount });
 
   // Recalcular con datos frescos
-  calcLecap(); calcBoncer(); calcSoberanos(); calcBote();
+  calcLecap(); calcBoncer(); calcBote();
   calcLelink(); calcLetam(); calcBontam();
 
   // Banner
@@ -1848,7 +1667,6 @@ async function initLive() {
 // Init: primero con defaults, luego override con BCRA+data912 live
 calcLecap();
 calcBoncer();
-calcSoberanos();
 calcBote();
 calcLelink();
 calcLetam();
