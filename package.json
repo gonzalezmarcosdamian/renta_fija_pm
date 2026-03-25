@@ -1,0 +1,16 @@
+{
+  "name": "uala-abc-data",
+  "version": "1.0.0",
+  "description": "Referencia educativa de calculos de renta fija argentina para el equipo de desarrollo",
+  "scripts": {
+    "test": "node --test test/",
+    "example:lecap": "node src/examples/lecap.js",
+    "example:boncer": "node src/examples/boncer.js",
+    "example:letam": "node src/examples/letam.js",
+    "example:lelink": "node src/examples/lelink.js",
+    "example:bote": "node src/examples/bote.js",
+    "example:bontam": "node src/examples/bontam.js",
+    "examples": "for f in src/examples/*.js; do echo \"\\n=== $f ===\"; node $f; done"
+  },
+  "dependencies": {}
+}

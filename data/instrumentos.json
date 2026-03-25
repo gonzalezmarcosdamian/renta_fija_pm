@@ -1,0 +1,330 @@
+{
+  "_doc": "Condiciones de emision REALES. Fuente: Ministerio de Economia / rendimientos-ar config.json / licitaciones publicadas.",
+  "_precios": "Los precios vienen de data912.com (en este proyecto). En produccion vienen del OMS.",
+  "_fecha": "Datos verificados 2026-03-25",
+
+  "lecaps": {
+    "_doc": "Letras capitalizables. Pago unico al vencimiento. Sin ajuste. Tickers: S + fecha",
+    "S17A6": {
+      "ticker": "S17A6",
+      "ticker_d912": "S17A6",
+      "tipo": "lecap",
+      "nombre": "LECAP Abril 2026",
+      "fecha_vencimiento": "2026-04-17",
+      "pago_final": 110.125
+    },
+    "S30A6": {
+      "ticker": "S30A6",
+      "ticker_d912": "S30A6",
+      "tipo": "lecap",
+      "nombre": "LECAP Abril 30 2026",
+      "fecha_vencimiento": "2026-04-30",
+      "pago_final": 127.486
+    },
+    "S29Y6": {
+      "ticker": "S29Y6",
+      "ticker_d912": "S29Y6",
+      "tipo": "lecap",
+      "nombre": "LECAP Mayo 2026",
+      "fecha_vencimiento": "2026-05-29",
+      "pago_final": 132.044
+    },
+    "S30N6": {
+      "ticker": "S30N6",
+      "ticker_d912": "S30N6",
+      "tipo": "lecap",
+      "nombre": "LECAP Noviembre 2026",
+      "fecha_vencimiento": "2026-11-30",
+      "pago_final": 129.888
+    }
+  },
+
+  "boncaps": {
+    "_doc": "Bonos capitalizables. Igual que LECAP pero plazo mas largo. Tickers: T + fecha",
+    "T30J6": {
+      "ticker": "T30J6",
+      "ticker_d912": "T30J6",
+      "tipo": "boncap",
+      "nombre": "BONCAP Junio 2026",
+      "fecha_vencimiento": "2026-06-30",
+      "pago_final": 144.896
+    },
+    "T15E7": {
+      "ticker": "T15E7",
+      "ticker_d912": "T15E7",
+      "tipo": "boncap",
+      "nombre": "BONCAP Enero 2027",
+      "fecha_vencimiento": "2027-01-15",
+      "pago_final": 161.104
+    }
+  },
+
+  "lecers": {
+    "_doc": "Letras ajustadas por CER. Pago = VN * (CER_vto / CER_emision). Tickers: X + fecha",
+    "X15Y6": {
+      "ticker": "X15Y6",
+      "ticker_d912": "X15Y6",
+      "tipo": "lecer",
+      "nombre": "LECER Mayo 2026",
+      "fecha_vencimiento": "2026-05-15",
+      "pago_final": 100.00,
+      "cer_emision": 701.614
+    },
+    "X29Y6": {
+      "ticker": "X29Y6",
+      "ticker_d912": "X29Y6",
+      "tipo": "lecer",
+      "nombre": "LECER Mayo 29 2026",
+      "fecha_vencimiento": "2026-05-29",
+      "pago_final": 100.00,
+      "cer_emision": 651.8981
+    },
+    "X30N6": {
+      "ticker": "X30N6",
+      "ticker_d912": "X30N6",
+      "tipo": "lecer",
+      "nombre": "LECER Noviembre 2026",
+      "fecha_vencimiento": "2026-11-30",
+      "pago_final": 100.00,
+      "cer_emision": 659.6789
+    }
+  },
+
+  "letams": {
+    "_doc": "Letras ajustadas por TAMAR. Pago = VN * coef_TAMAR_acumulado. Tickers: M + fecha",
+    "M31G6": {
+      "ticker": "M31G6",
+      "ticker_d912": "M31G6",
+      "tipo": "letam",
+      "nombre": "LETAM Agosto 2026",
+      "fecha_vencimiento": "2026-08-31",
+      "pago_final": 100.00,
+      "fecha_emision": "2025-08-29"
+    }
+  },
+
+  "lelinks": {
+    "_doc": "Letras Dolar Linked. Pago = VN * (TC_vto / TC_emision). Tickers: D + fecha",
+    "D30A6": {
+      "ticker": "D30A6",
+      "ticker_d912": "D30A6",
+      "tipo": "lelink",
+      "nombre": "DL Abril 2026",
+      "fecha_vencimiento": "2026-04-30",
+      "pago_final": 100.00,
+      "tc_emision": 1197.50
+    }
+  },
+
+  "boncers": {
+    "_doc": "Bonos ajustados por CER. Cupon + amort ajustados por CER. Tickers: TX/TZX + fecha",
+    "TX26": {
+      "ticker": "TX26",
+      "ticker_d912": "TX26",
+      "tipo": "boncer",
+      "nombre": "BONCER 2% 2026",
+      "vencimiento": "2026-11-09",
+      "cer_emision": 22.544,
+      "flujos": [
+        { "fecha": "2021-05-10", "amortizacion": 0.00, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2021-11-09", "amortizacion": 0.00, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2022-05-09", "amortizacion": 0.00, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2022-11-09", "amortizacion": 0.00, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2023-05-09", "amortizacion": 0.00, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2023-11-09", "amortizacion": 0.10, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2024-05-09", "amortizacion": 0.10, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2024-11-11", "amortizacion": 0.10, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2025-05-09", "amortizacion": 0.10, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2025-11-10", "amortizacion": 0.20, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2026-05-11", "amortizacion": 0.20, "tasa_interes": 0.02, "base": 0.5 },
+        { "fecha": "2026-11-09", "amortizacion": 0.20, "tasa_interes": 0.02, "base": 0.5 }
+      ]
+    },
+    "TZX26": {
+      "ticker": "TZX26",
+      "ticker_d912": "TZX26",
+      "tipo": "lecer",
+      "nombre": "LECER Junio 2026 (zero coupon CER)",
+      "fecha_vencimiento": "2026-06-30",
+      "pago_final": 100.00,
+      "cer_emision": 200.388
+    }
+  },
+
+  "bontams": {
+    "_doc": "Bonos ajustados por TAMAR. Cupon = TAMAR del periodo + spread. Tickers: TMF",
+    "TMF27": {
+      "ticker": "TMF27",
+      "ticker_d912": "TMF27",
+      "tipo": "bontam",
+      "nombre": "BONTAM Febrero 2027",
+      "vencimiento": "2027-02-08",
+      "fecha_emision": "2025-02-07",
+      "spread_tamar": 0.00,
+      "flujos": [
+        { "fecha": "2025-08-08", "amortizacion": 0.00, "base": 0.5 },
+        { "fecha": "2026-02-08", "amortizacion": 0.00, "base": 0.5 },
+        { "fecha": "2026-08-08", "amortizacion": 0.3333, "base": 0.5 },
+        { "fecha": "2027-02-08", "amortizacion": 0.6667, "base": 0.5 }
+      ]
+    }
+  },
+
+  "soberanos": {
+    "_doc": "Bonos soberanos en USD. Ley local (AL=Bonar) y NY (GD=Global). Flujos en USD por 100 VN. Precio en USD (ticker con D en data912).",
+    "_precio_d912": "Los tickers sin sufijo cotizan en ARS. Los con D en USD (MEP). Los con C en USD (CCL). Para TIR usar precio en USD (D).",
+    "AL30": {
+      "ticker": "AL30",
+      "ticker_d912_usd": "AL30D",
+      "ticker_d912_ars": "AL30",
+      "tipo": "bonar",
+      "ley": "local",
+      "nombre": "BONAR 2030 (Ley Arg)",
+      "vencimiento": "2030-07-09",
+      "par": "GD30",
+      "moneda": "USD",
+      "flujos": [
+        { "fecha": "2026-07-09", "monto": 8.27 },
+        { "fecha": "2027-01-09", "monto": 8.24 },
+        { "fecha": "2027-07-09", "monto": 8.21 },
+        { "fecha": "2028-01-09", "monto": 8.42 },
+        { "fecha": "2028-07-09", "monto": 8.35 },
+        { "fecha": "2029-01-09", "monto": 8.28 },
+        { "fecha": "2029-07-09", "monto": 8.21 },
+        { "fecha": "2030-01-09", "monto": 8.14 },
+        { "fecha": "2030-07-09", "monto": 8.07 }
+      ]
+    },
+    "GD30": {
+      "ticker": "GD30",
+      "ticker_d912_usd": "GD30D",
+      "ticker_d912_ars": "GD30",
+      "tipo": "global",
+      "ley": "NY",
+      "nombre": "GLOBAL 2030 (Ley NY)",
+      "vencimiento": "2030-07-09",
+      "par": "AL30",
+      "moneda": "USD",
+      "flujos": [
+        { "fecha": "2026-07-09", "monto": 8.27 },
+        { "fecha": "2027-01-09", "monto": 8.24 },
+        { "fecha": "2027-07-09", "monto": 8.21 },
+        { "fecha": "2028-01-09", "monto": 8.42 },
+        { "fecha": "2028-07-09", "monto": 8.35 },
+        { "fecha": "2029-01-09", "monto": 8.28 },
+        { "fecha": "2029-07-09", "monto": 8.21 },
+        { "fecha": "2030-01-09", "monto": 8.14 },
+        { "fecha": "2030-07-09", "monto": 8.07 }
+      ]
+    },
+    "AL29": {
+      "ticker": "AL29",
+      "ticker_d912_usd": "AL29D",
+      "ticker_d912_ars": "AL29",
+      "tipo": "bonar",
+      "ley": "local",
+      "nombre": "BONAR 2029 (Ley Arg)",
+      "vencimiento": "2029-07-09",
+      "par": "GD29",
+      "moneda": "USD",
+      "flujos": [
+        { "fecha": "2026-07-09", "monto": 10.35 },
+        { "fecha": "2027-01-09", "monto": 10.30 },
+        { "fecha": "2027-07-09", "monto": 10.25 },
+        { "fecha": "2028-01-09", "monto": 10.20 },
+        { "fecha": "2028-07-09", "monto": 10.15 },
+        { "fecha": "2029-01-09", "monto": 10.10 },
+        { "fecha": "2029-07-09", "monto": 10.05 }
+      ]
+    },
+    "GD29": {
+      "ticker": "GD29",
+      "ticker_d912_usd": "GD29D",
+      "ticker_d912_ars": "GD29",
+      "tipo": "global",
+      "ley": "NY",
+      "nombre": "GLOBAL 2029 (Ley NY)",
+      "vencimiento": "2029-07-09",
+      "par": "AL29",
+      "moneda": "USD",
+      "flujos": [
+        { "fecha": "2026-07-09", "monto": 10.35 },
+        { "fecha": "2027-01-09", "monto": 10.30 },
+        { "fecha": "2027-07-09", "monto": 10.25 },
+        { "fecha": "2028-01-09", "monto": 10.20 },
+        { "fecha": "2028-07-09", "monto": 10.15 },
+        { "fecha": "2029-01-09", "monto": 10.10 },
+        { "fecha": "2029-07-09", "monto": 10.05 }
+      ]
+    },
+    "AE38": {
+      "ticker": "AE38",
+      "ticker_d912_usd": "AE38D",
+      "ticker_d912_ars": "AE38",
+      "tipo": "bonar",
+      "ley": "local",
+      "nombre": "BONAR 2038 (Ley Arg)",
+      "vencimiento": "2038-01-09",
+      "par": "GD38",
+      "moneda": "USD",
+      "flujos": [
+        { "fecha": "2026-07-09", "monto": 2.50 },
+        { "fecha": "2027-01-09", "monto": 2.50 },
+        { "fecha": "2027-07-09", "monto": 2.50 },
+        { "fecha": "2028-01-09", "monto": 2.50 },
+        { "fecha": "2028-07-09", "monto": 2.50 },
+        { "fecha": "2029-01-09", "monto": 2.50 },
+        { "fecha": "2029-07-09", "monto": 2.50 },
+        { "fecha": "2030-01-09", "monto": 2.50 },
+        { "fecha": "2030-07-09", "monto": 2.50 },
+        { "fecha": "2031-01-09", "monto": 2.50 },
+        { "fecha": "2031-07-09", "monto": 2.50 },
+        { "fecha": "2032-01-09", "monto": 2.50 },
+        { "fecha": "2032-07-09", "monto": 2.50 },
+        { "fecha": "2033-01-09", "monto": 2.50 },
+        { "fecha": "2033-07-09", "monto": 2.50 },
+        { "fecha": "2034-01-09", "monto": 5.75 },
+        { "fecha": "2034-07-09", "monto": 5.625 },
+        { "fecha": "2035-01-09", "monto": 5.50 },
+        { "fecha": "2035-07-09", "monto": 5.375 },
+        { "fecha": "2036-01-09", "monto": 5.25 },
+        { "fecha": "2036-07-09", "monto": 5.125 },
+        { "fecha": "2037-01-09", "monto": 5.0 },
+        { "fecha": "2037-07-09", "monto": 4.875 },
+        { "fecha": "2038-01-09", "monto": 4.75 }
+      ]
+    }
+  },
+
+  "botes": {
+    "_doc": "Bonos tasa fija con cupon. Sin ajuste. Flujos fijos. Tickers: TTx26",
+    "TTS26": {
+      "ticker": "TTS26",
+      "ticker_d912": "TTS26",
+      "tipo": "bote",
+      "nombre": "BOTE Septiembre 2026",
+      "vencimiento": "2026-09-18",
+      "tasa_cupon_anual": 0.17,
+      "flujos": [
+        { "fecha": "2025-03-18", "monto": 8.50 },
+        { "fecha": "2025-09-18", "monto": 8.50 },
+        { "fecha": "2026-03-18", "monto": 8.50 },
+        { "fecha": "2026-09-18", "monto": 108.50 }
+      ]
+    },
+    "TTJ26": {
+      "ticker": "TTJ26",
+      "ticker_d912": "TTJ26",
+      "tipo": "bote",
+      "nombre": "BOTE Junio 2026",
+      "vencimiento": "2026-06-18",
+      "tasa_cupon_anual": 0.17,
+      "flujos": [
+        { "fecha": "2024-12-18", "monto": 8.50 },
+        { "fecha": "2025-06-18", "monto": 8.50 },
+        { "fecha": "2025-12-18", "monto": 8.50 },
+        { "fecha": "2026-06-18", "monto": 108.50 }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABC Renta Fija Argentina — Calculadora Educativa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f14; --surface: #1a1a24; --surface-2: #22223a;
+      --border: #2a2a3a; --border-2: #3a3a5a;
+      --text: #e4e4ef; --text-2: #9999b0; --text-3: #66667a;
+      --accent: #6366f1; --accent-soft: #6366f120;
+      --green: #22c55e; --green-soft: #22c55e18;
+      --red: #ef4444; --red-soft: #ef444418;
+      --amber: #f59e0b; --amber-soft: #f59e0b18;
+      --emerald: #10b981; --emerald-soft: #10b98118;
+      --radius: 16px; --radius-sm: 8px; --radius-xs: 4px;
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --max-w: 820px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    [data-theme="light"] {
+      --bg: #f5f5f7; --surface: #ffffff; --surface-2: #f0f0f5;
+      --border: #e0e0e8; --border-2: #d0d0da;
+      --text: #1a1a2e; --text-2: #555570; --text-3: #8888a0;
+      --accent-soft: #6366f110; --green-soft: #22c55e10;
+      --red-soft: #ef444410; --amber-soft: #f59e0b10; --emerald-soft: #10b98110;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--text);
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ─── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+
+    /* ─── Header ─── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px); padding: 16px 0;
+    }
+    header .container { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .logo span { color: var(--accent); }
+
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .theme-toggle {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: var(--text-2); padding: 6px 10px; cursor: pointer; font-size: 14px;
+      transition: var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── Nav (horizontal scroll on mobile) ─── */
+    nav {
+      position: sticky; top: 57px; z-index: 99;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    nav .container { display: flex; gap: 4px; padding: 8px 24px; min-width: max-content; }
+    nav a {
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      color: var(--text-2); text-decoration: none; white-space: nowrap;
+      transition: var(--transition); border: 1px solid transparent;
+    }
+    nav a:hover { color: var(--text); background: var(--surface); }
+    nav a.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+
+    /* ─── Hero ─── */
+    .hero {
+      padding: 80px 0 48px; text-align: center;
+      background: linear-gradient(180deg, var(--accent-soft) 0%, transparent 60%);
+    }
+    .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px; }
+    .hero p { color: var(--text-2); font-size: 17px; max-width: 560px; margin: 0 auto; }
+
+    /* ─── Badges de origen ─── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 20px; font-size: 11px;
+      font-family: var(--mono); font-weight: 500; letter-spacing: 0.02em;
+    }
+    .badge-oms { background: var(--accent-soft); color: var(--accent); }
+    .badge-bcra { background: var(--emerald-soft); color: var(--emerald); }
+    .badge-cnv { background: var(--amber-soft); color: var(--amber); }
+    .badge-calc { background: var(--surface-2); color: var(--text-2); }
+    .badge-lecap { background: var(--accent-soft); color: var(--accent); }
+    .badge-boncer { background: var(--emerald-soft); color: var(--emerald); }
+    .badge-letam { background: var(--amber-soft); color: var(--amber); }
+    .badge-lelink { background: var(--green-soft); color: var(--green); }
+    .badge-bote { background: var(--surface-2); color: var(--text); }
+
+    /* ─── Section ─── */
+    section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+    .section-header { margin-bottom: 32px; }
+    .section-header h2 {
+      font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+      display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+    }
+    .section-header p { color: var(--text-2); font-size: 15px; }
+
+    /* ─── Card ─── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 13px; font-weight: 600; color: var(--text-2);
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
+    }
+
+    /* ─── Formula ─── */
+    .formula-block {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 20px 24px; margin: 16px 0;
+      font-family: var(--mono); font-size: 15px; line-height: 2;
+      overflow-x: auto;
+    }
+    .formula-block .var-oms { color: var(--accent); font-weight: 600; }
+    .formula-block .var-bcra { color: var(--emerald); font-weight: 600; }
+    .formula-block .var-cnv { color: var(--amber); font-weight: 600; }
+    .formula-block .var-calc { color: var(--text); font-weight: 600; }
+    .formula-block .op { color: var(--text-3); }
+    .formula-block .comment { color: var(--text-3); font-size: 12px; }
+
+    /* ─── Data origin strip ─── */
+    .origin-strip {
+      display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0;
+    }
+    .origin-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); font-size: 13px; flex: 1; min-width: 180px;
+    }
+    .origin-item .label { color: var(--text-2); font-size: 11px; display: block; }
+    .origin-item .value { font-family: var(--mono); font-weight: 500; font-size: 14px; }
+
+    /* ─── Interactive calculator ─── */
+    .calc-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;
+    }
+    @media (max-width: 600px) { .calc-grid { grid-template-columns: 1fr; } }
+
+    .calc-field label {
+      display: block; font-size: 12px; color: var(--text-2);
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .calc-field input {
+      width: 100%; padding: 10px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface-2);
+      color: var(--text); font-family: var(--mono); font-size: 14px;
+      transition: var(--transition); outline: none;
+    }
+    .calc-field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    /* ─── Results ─── */
+    .results-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin: 16px 0;
+    }
+    .result-item {
+      padding: 16px; border-radius: var(--radius-sm); text-align: center;
+      border: 1px solid var(--border); background: var(--surface-2);
+    }
+    .result-item .label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; }
+    .result-item .value {
+      font-family: var(--mono); font-size: 22px; font-weight: 700; margin-top: 4px;
+      transition: var(--transition);
+    }
+    .result-item .value.positive { color: var(--green); }
+    .result-item .value.negative { color: var(--red); }
+    .result-item .value.estimate { color: var(--amber); }
+
+    /* ─── Step-by-step ─── */
+    .steps { margin: 16px 0; }
+    .step {
+      display: flex; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--border); font-size: 14px; align-items: baseline;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+    }
+    .step-formula { font-family: var(--mono); color: var(--text-2); font-size: 13px; }
+    .step-result { font-family: var(--mono); font-weight: 600; margin-left: auto; white-space: nowrap; }
+
+    /* ─── Flow table ─── */
+    .flow-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+    .flow-table th {
+      text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--border);
+      font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .flow-table td {
+      padding: 8px 12px; border-bottom: 1px solid var(--border);
+      font-family: var(--mono); font-size: 13px;
+    }
+    .flow-table tr:last-child td { border-bottom: none; }
+    .flow-table .highlight td { background: var(--accent-soft); }
+
+    /* ─── Code block ─── */
+    .code-block {
+      position: relative; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin: 16px 0; overflow: hidden;
+    }
+    .code-block pre {
+      padding: 16px 20px; overflow-x: auto; font-family: var(--mono);
+      font-size: 13px; line-height: 1.6; color: var(--text-2);
+    }
+    .code-block .copy-btn {
+      position: absolute; top: 8px; right: 8px; padding: 4px 10px;
+      border-radius: var(--radius-xs); border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-3); font-size: 11px;
+      cursor: pointer; transition: var(--transition);
+    }
+    .code-block .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ─── Comparison table (final) ─── */
+    .comparison-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .comparison-table th {
+      text-align: left; padding: 10px 14px; background: var(--surface-2);
+      border-bottom: 2px solid var(--border); font-size: 12px; font-weight: 600;
+    }
+    .comparison-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    .comparison-table td:first-child { font-weight: 600; }
+
+    /* ─── Footer ─── */
+    footer { padding: 48px 0; text-align: center; color: var(--text-3); font-size: 13px; }
+
+    /* ─── Utilities ─── */
+    .mono { font-family: var(--mono); }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-8 { margin-bottom: 8px; }
+    .text-2 { color: var(--text-2); }
+    .text-sm { font-size: 13px; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .note {
+      padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px;
+      border-left: 3px solid var(--amber); background: var(--amber-soft);
+      color: var(--text-2); margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="container">
+    <div class="logo"><span>ABC</span> Renta Fija</div>
+    <div class="header-actions">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">☀️</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Nav -->
+<nav>
+  <div class="container">
+    <a href="#lecap" class="active">LECAP</a>
+    <a href="#boncer">BONCER</a>
+    <a href="#soberanos">Soberanos USD</a>
+    <a href="#bote">BOTE</a>
+    <a href="#lelink">LELINK</a>
+    <a href="#letam">LETAM</a>
+    <a href="#bontam">BONTAM</a>
+    <a href="#resumen">Resumen</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="container">
+    <h1>Renta Fija Argentina<br>para Developers</h1>
+    <p>Cada instrumento explicado con su formula, origen de datos y ejemplo interactivo. De lo simple a lo complejo.</p>
+    <div style="margin-top:24px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <span class="badge badge-oms">OMS</span> Precio de mercado
+      <span class="badge badge-bcra">BCRA</span> Coeficientes
+      <span class="badge badge-cnv">CNV</span> Emision
+      <span class="badge badge-calc">CALC</span> Nosotros
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ LECAP ════════════════════ -->
+<section id="lecap">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-lecap">LECAP / BONCAP</span> Letras y Bonos Capitalizables</h2>
+      <p>El instrumento mas simple. Compras a un precio, cobras un monto fijo al vencimiento. Sin cupones, sin ajuste.</p>
+    </div>
+
+    <!-- Dev intro -->
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span> tiempo real. En data912: ticker directo (ej: <code style="color:var(--accent)">S17A6</code>), campo <code>c</code> = ultimo precio.<br>
+        <strong>Pago final</strong> → <span class="badge badge-cnv">CNV</span> fijo, de la licitacion del Ministerio de Economia. Se carga una vez, no cambia nunca.<br>
+        <strong>Fecha de vencimiento</strong> → <span class="badge badge-cnv">CNV</span> fija, misma fuente.<br>
+        <strong>Dias al vencimiento</strong> → <span class="badge badge-calc">CALC</span> calculado: <code>fecha_vto - settlement(hoy)</code>. No se hardcodea.<br><br>
+        <strong>Que desarrollar:</strong> ① Endpoint que lea precio del OMS por ticker ② Tabla de instrumentos con pago_final y fecha_vto (se actualiza solo en nueva licitacion) ③ Calculo de TNA, TIR y Paridad — formulas directas, sin iteracion.<br>
+        <strong>Es el mas simple.</strong> Si esto funciona, el 70% de la logica ya esta.
+      </p>
+    </div>
+
+    <!-- Formula -->
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="var-calc">ganancia</span> <span class="op">=</span> <span class="var-cnv">pago_final</span> <span class="op">/</span> <span class="var-oms">precio</span><br>
+        <span class="var-calc">TNA</span> <span class="op">=</span> <span class="op">(</span><span class="var-calc">ganancia</span> <span class="op">- 1) × (365 /</span> <span class="var-cnv">dias</span><span class="op">) × 100</span> <span class="comment">// interes simple</span><br>
+        <span class="var-calc">TIR</span> <span class="op">=</span> <span class="op">(</span><span class="var-calc">ganancia</span> <span class="op">^</span> <span class="op">(365 /</span> <span class="var-cnv">dias</span><span class="op">)</span> <span class="op">- 1) × 100</span> <span class="comment">// interes compuesto</span><br>
+        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio</span> <span class="op">/</span> <span class="var-cnv">pago_final</span> <span class="op">× 100</span>
+      </div>
+    </div>
+
+    <!-- Data origin -->
+    <div class="origin-strip">
+      <div class="origin-item">
+        <span class="badge badge-oms">OMS</span>
+        <div><span class="label">Precio de mercado</span><span class="value" id="lecap-price-show">108.40</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">Pago al vencimiento</span><span class="value" id="lecap-pf-show">110.125</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">Dias al vencimiento</span><span class="value" id="lecap-dias-show">27</span></div>
+      </div>
+    </div>
+
+    <!-- Calculator -->
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — S17A6 (LECAP Abril 2026) <span class="badge badge-oms" style="font-size:10px">LIVE data912</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio</label>
+          <input type="number" id="lecap-precio" value="108.40" step="0.01" oninput="calcLecap()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Pago Final</label>
+          <input type="number" id="lecap-pago" value="110.125" step="0.001" oninput="calcLecap()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias al vto</label>
+          <input type="number" id="lecap-dias" value="27" oninput="calcLecap()">
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps" id="lecap-steps"></div>
+
+      <!-- Results -->
+      <div class="results-grid" id="lecap-results"></div>
+    </div>
+
+    <!-- Code -->
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const ganancia = pago_final / precio;
+const tna = (ganancia - 1) * (365 / dias) * 100;
+const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
+const paridad = (precio / pago_final) * 100;</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ BONCER ════════════════════ -->
+<section id="boncer">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-boncer">BONCER / LECER</span> Ajustados por CER (inflacion)</h2>
+      <p>El capital se ajusta por inflacion. Los flujos se multiplican por el coeficiente CER. La TIR es <strong>real</strong> (por encima de inflacion).</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--emerald)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: <code style="color:var(--accent)">TX26</code> (ojo: viene por 10 VN, dividir por 10).<br>
+        <strong>CER actual</strong> → <span class="badge badge-bcra">BCRA</span> serie 30. Consultar 1 vez por dia y cachear.<br>
+        <strong>CER de emision</strong> → <span class="badge badge-cnv">CNV</span> fijo por bono, del prospecto. TX26 = 22.544 (emitido 2021). LECERs nuevas tienen CER ~700 (base distinta, mismo calculo).<br>
+        <strong>Cronograma de flujos</strong> → <span class="badge badge-cnv">CNV</span> fijo. Cada flujo: fecha, % amortizacion, tasa cupon, base (0.5 = semestral).<br><br>
+        <strong>Que desarrollar:</strong> ① Job diario que consulte CER a BCRA serie 30 y lo persista ② Para cada flujo futuro: interes = VR × tasa × base, ajustar por coef_CER ③ Newton-Raphson sobre flujos ajustados ④ Paridad = precio / (VR × coef_CER × 100).<br>
+        <strong>Complejidad media.</strong> Las LECER son mas simples (pago unico × coef_CER, sin cupones intermedios).
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="var-bcra">coef_CER</span> <span class="op">=</span> <span class="var-bcra">CER_actual</span> <span class="op">/</span> <span class="var-cnv">CER_emision</span><br>
+        <span class="var-calc">VR(i)</span> <span class="op">= 1 -</span> <span class="op">Σ amortizaciones anteriores</span><br>
+        <span class="var-calc">interes</span> <span class="op">=</span> <span class="var-calc">VR</span> <span class="op">×</span> <span class="var-cnv">tasa_cupon</span> <span class="op">×</span> <span class="var-cnv">base</span><br>
+        <span class="var-calc">flujo_ajustado</span> <span class="op">= (</span><span class="var-calc">interes</span> <span class="op">+</span> <span class="var-cnv">amortizacion</span><span class="op">) ×</span> <span class="var-bcra">coef_CER</span><br>
+        <span class="var-calc">TIR</span> <span class="op">→ Newton-Raphson:</span> <span class="var-oms">precio</span><span class="op">/100 = Σ[</span><span class="var-calc">flujo(i)</span> <span class="op">/ (1+r)^t(i)]</span>
+      </div>
+    </div>
+
+    <div class="origin-strip">
+      <div class="origin-item">
+        <span class="badge badge-oms">OMS</span>
+        <div><span class="label">Precio ARS (por 100 VN)</span><span class="value">89.50</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-bcra">BCRA</span>
+        <div><span class="label">CER actual (serie 30)</span><span class="value">23.50</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">CER emision TX26</span><span class="value">22.544</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — TX26 (BONCER 2% Nov 2026) <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio ARS</label>
+          <input type="number" id="cer-precio" value="89.50" step="0.01" oninput="calcBoncer()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-bcra" style="font-size:10px">BCRA</span> CER actual</label>
+          <input type="number" id="cer-actual" value="23.50" step="0.01" oninput="calcBoncer()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> CER emision</label>
+          <input type="number" id="cer-emision" value="22.544" step="0.001" oninput="calcBoncer()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Tasa cupon</label>
+          <input type="number" id="cer-tasa" value="0.02" step="0.001" oninput="calcBoncer()">
+        </div>
+      </div>
+
+      <div class="card-title mt-24">Flujos ajustados por CER (futuros)</div>
+      <table class="flow-table" id="cer-flows"></table>
+
+      <div class="steps" id="cer-steps"></div>
+      <div class="results-grid" id="cer-results"></div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+const coefCER = cer_actual / cer_emision;
+let amortAcum = 0;
+const flujos = bondFlujos.map(f => {
+  const vr = 1 - amortAcum;
+  amortAcum += f.amortizacion;
+  const interes = vr * f.tasa_interes * f.base;
+  return { fecha: f.fecha, monto: (interes + f.amortizacion) * coefCER };
+}).filter(f => f.fecha > hoy);
+const tir = calcYTM(precio / 100, flujos, settlement);</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ SOBERANOS USD ════════════════════ -->
+<section id="soberanos">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR / GLOBAL</span> Soberanos en USD</h2>
+      <p>Bonos soberanos en dolares. Ley local (AL = Bonar) vs Ley NY (GD = Global). Mismos flujos, distinta jurisdiccion. Precio en USD.</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio en USD</strong> → <span class="badge badge-oms">OMS</span>. En data912: usar ticker con sufijo <code style="color:var(--accent)">D</code> (MEP). Ej: <code>AL30D</code> = 61.13 USD. Sin sufijo es en ARS.<br>
+        <strong>Precio en ARS</strong> → Para CCL implicito: <code>CCL = AL30 (ARS) / AL30D (USD)</code>.<br>
+        <strong>Flujos en USD</strong> → <span class="badge badge-cnv">CNV</span> fijos, del prospecto. Cupon + amortizacion por 100 VN. AL30 y GD30 tienen mismos flujos.<br><br>
+        <strong>Que desarrollar:</strong> ① Mismo Newton-Raphson que BOTE pero en USD ② Comparar TIR local vs NY → spread = prima jurisdiccional ③ CCL implicito desde par ARS/USD ④ Duration.<br>
+        <strong>Mismo calculo que BOTE</strong> pero en dolares. Complejidad en las unidades de data912 (miles para ARS, directo para USD).
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas (igual que BOTE pero en USD)</div>
+      <div class="formula-block">
+        <span class="comment">// Flujos en USD por 100 VN (cupon + amortizacion)</span><br>
+        <span class="var-calc">TIR</span> <span class="op">→ Newton-Raphson:</span> <span class="var-oms">precio_usd</span> <span class="op">= Σ[</span> <span class="var-cnv">flujo(i)</span> <span class="op">/ (1+r)^t(i) ]</span><br>
+        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio_usd</span> <span class="op">/ VT × 100</span><br>
+        <span class="comment">// CCL implicito = precio_ARS / precio_USD</span><br>
+        <span class="var-calc">CCL</span> <span class="op">=</span> <span class="var-oms">AL30 (ARS)</span> <span class="op">/</span> <span class="var-oms">AL30D (USD)</span>
+      </div>
+    </div>
+
+    <div class="origin-strip">
+      <div class="origin-item">
+        <span class="badge badge-oms">OMS</span>
+        <div><span class="label">AL30D (USD MEP)</span><span class="value" id="sob-al30d">61.13</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-oms">OMS</span>
+        <div><span class="label">GD30D (USD MEP)</span><span class="value" id="sob-gd30d">62.99</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">Flujos (USD por 100 VN)</span><span class="value">9 pagos</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — AL30 vs GD30 <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> AL30D (USD)</label>
+          <input type="number" id="sob-precio-al" value="61.13" step="0.01" oninput="calcSoberanos()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> GD30D (USD)</label>
+          <input type="number" id="sob-precio-gd" value="62.99" step="0.01" oninput="calcSoberanos()">
+        </div>
+      </div>
+
+      <div class="card-title mt-24">Flujos futuros en USD (por 100 VN) — mismo cronograma</div>
+      <table class="flow-table" id="sob-flows"></table>
+      <div class="steps" id="sob-steps"></div>
+      <div class="results-grid" id="sob-results"></div>
+    </div>
+
+    <div class="note">AL30 y GD30 tienen los <strong>mismos flujos</strong>. La diferencia de precio es la prima por jurisdiccion: ley NY protege mejor ante un default. Comparar sus TIR muestra cuanto "paga" el mercado por esa proteccion.</div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+// Soberanos: misma funcion calcYTM que BOTE
+const flujos = bondConfig.flujos
+  .map(f => ({ fecha: new Date(f.fecha), monto: f.monto }))
+  .filter(f => f.fecha > hoy);
+const tir = calcYTM(precioUSD, flujos, settlement);
+const duration = calcDuration(flujos, settlement, tir);
+
+// CCL implicito desde AL30
+const ccl = precioARS_AL30 / precioUSD_AL30D;</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ BOTE ════════════════════ -->
+<section id="bote">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-bote">BOTE</span> Bonos a Tasa Fija con Cupon</h2>
+      <p>Cupon fijo periodico + amortizacion. Sin ajuste. Todos los flujos son conocidos de antemano. El caso mas limpio de Newton-Raphson.</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--text-2)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: ticker directo (<code style="color:var(--accent)">TTS26</code>), campo <code>c</code>.<br>
+        <strong>Cronograma de flujos</strong> → <span class="badge badge-cnv">CNV</span> fijo. Cada flujo es un monto fijo en pesos (cupon + amort). El ultimo incluye devolucion de capital.<br><br>
+        <strong>Que desarrollar:</strong> ① Newton-Raphson para TIR (misma funcion que soberanos/BONCER) ② Filtrar solo flujos futuros ③ Macaulay Duration.<br>
+        <strong>El caso mas limpio de Newton-Raphson.</strong> Sin coeficientes, sin ajustes. Ideal para validar tu implementacion antes de pasar a CER/TAMAR.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formula — Newton-Raphson</div>
+      <div class="formula-block">
+        <span class="comment">// Encontrar r (TIR) tal que:</span><br>
+        <span class="var-oms">precio</span><span class="op">/100 = Σ [</span> <span class="var-cnv">flujo(i)</span> <span class="op">/ (1 + </span><span class="var-calc">r</span><span class="op">)^</span><span class="var-calc">t(i)</span> <span class="op">]</span><br><br>
+        <span class="comment">// Iteracion:</span><br>
+        <span class="var-calc">r_nuevo</span> <span class="op">=</span> <span class="var-calc">r</span> <span class="op">- (PV -</span> <span class="var-oms">precio</span><span class="op">) / dPV</span><br>
+        <span class="comment">// Converge cuando |PV - precio| &lt; 0.0001</span>
+      </div>
+    </div>
+
+    <div class="origin-strip">
+      <div class="origin-item">
+        <span class="badge badge-oms">OMS</span>
+        <div><span class="label">Precio (por 100 VN)</span><span class="value">95.80</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">Cupon semestral</span><span class="value">$8.50</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-cnv">CNV</span>
+        <div><span class="label">Flujos (todos fijos)</span><span class="value">4 pagos</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — TTS26 (BOTE Sep 2026) <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio</label>
+          <input type="number" id="bote-precio" value="95.80" step="0.01" oninput="calcBote()">
+        </div>
+      </div>
+
+      <div class="card-title mt-24">Flujos fijos (conocidos desde la emision)</div>
+      <table class="flow-table" id="bote-flows"></table>
+      <div class="steps" id="bote-steps"></div>
+      <div class="results-grid" id="bote-results"></div>
+    </div>
+
+    <div class="code-block">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      <pre>
+function calcYTM(price, flows, settlement) {
+  const MS_YR = 365.25 * 24 * 3600 * 1000;
+  let r = 0.10;
+  for (let i = 0; i < 100; i++) {
+    let pv = 0, dpv = 0;
+    for (const f of flows) {
+      const t = (f.fecha - settlement) / MS_YR;
+      if (t <= 0) continue;
+      const d = Math.pow(1 + r, t);
+      pv += f.monto / d;
+      dpv -= t * f.monto / (d * (1 + r));
+    }
+    if (Math.abs(pv - price) < 0.0001) break;
+    r -= (pv - price) / dpv;
+    r = Math.max(-0.5, Math.min(2, r));
+  }
+  return r * 100;
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ LELINK ════════════════════ -->
+<section id="lelink">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-lelink">LELINK</span> Letras Dolar Linked</h2>
+      <p>El capital se ajusta por el tipo de cambio oficial (A3500). Cobertura contra devaluacion.</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--green)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: <code style="color:var(--accent)">D30A6</code> (ojo: viene en miles de ARS, dividir por 1000).<br>
+        <strong>TC Oficial actual</strong> → <span class="badge badge-bcra">BCRA</span> serie 4 (A3500). Consulta diaria.<br>
+        <strong>TC de emision</strong> → <span class="badge badge-cnv">CNV</span> fijo, del prospecto de licitacion.<br><br>
+        <strong>Que desarrollar:</strong> ① Job diario para TC Oficial BCRA serie 4 ② Coef DL = TC_actual / TC_emision ③ TIR y TNA en pesos (incluyen devaluacion) ④ Paridad contra VT ajustado.<br>
+        <strong>Mismo nivel que LECER</strong> pero con tipo de cambio en vez de CER. La TIR es en pesos — para USD restarle la devaluacion esperada.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="var-bcra">coef_DL</span> <span class="op">=</span> <span class="var-bcra">TC_actual</span> <span class="op">/</span> <span class="var-cnv">TC_emision</span><br>
+        <span class="var-calc">pago_ajustado</span> <span class="op">=</span> <span class="var-cnv">pago_final</span> <span class="op">×</span> <span class="var-bcra">coef_DL</span><br>
+        <span class="var-calc">TIR (ARS)</span> <span class="op">= (</span><span class="var-calc">pago_ajustado</span> <span class="op">/</span> <span class="var-oms">precio</span><span class="op">)^(365/dias) - 1</span><br>
+        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio</span> <span class="op">/ (</span><span class="var-cnv">100</span> <span class="op">×</span> <span class="var-bcra">coef_DL</span><span class="op">) × 100</span>
+      </div>
+      <div class="note">La TIR es en pesos. Para ver rendimiento en USD: TIR_USD ≈ TIR_ARS - tasa de devaluacion.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — D30A6 (DL Abril 2026) <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio ARS</label>
+          <input type="number" id="dl-precio" value="99.50" step="0.01" oninput="calcLelink()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-bcra" style="font-size:10px">BCRA</span> TC Oficial actual</label>
+          <input type="number" id="dl-tc-actual" value="1070" step="1" oninput="calcLelink()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> TC emision</label>
+          <input type="number" id="dl-tc-emision" value="1197.5" step="1" oninput="calcLelink()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias al vto</label>
+          <input type="number" id="dl-dias" value="36" oninput="calcLelink()">
+        </div>
+      </div>
+      <div class="steps" id="dl-steps"></div>
+      <div class="results-grid" id="dl-results"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ LETAM ════════════════════ -->
+<section id="letam">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-letam">LETAM</span> Letras ajustadas por TAMAR</h2>
+      <p>Ajustado por TAMAR — la tasa mayorista de plazos fijos. BCRA publica la tasa diaria, nosotros la acumulamos.</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: <code style="color:var(--accent)">M31G6</code>, campo <code>c</code>.<br>
+        <strong>TAMAR actual</strong> → <span class="badge badge-bcra">BCRA</span> serie 44 (privados, TNA). Hoy: 26.75%. Consulta diaria.<br>
+        <strong>Serie historica de TAMAR</strong> → <span class="badge badge-bcra">BCRA</span> serie 44 COMPLETA desde fecha de emision. Se necesita toda para acumular.<br>
+        <strong>Fecha de emision</strong> → <span class="badge badge-cnv">CNV</span> fija, del prospecto.<br><br>
+        <strong>Que desarrollar:</strong> ① Job diario que consulte TAMAR serie 44 y la persista en DB ② Funcion que acumule: <code>coef = Π(1 + tasa/100/365)</code> dia por dia desde emision ③ Proyectar TAMAR constante para flujos futuros ④ TIR estimada (siempre con disclaimer).<br>
+        <strong>El mas complejo en datos.</strong> A diferencia de CER (que BCRA publica acumulado y solo dividis), TAMAR hay que acumularla dia por dia. Necesitas persistir la serie historica.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="comment">// TAMAR se acumula DIARIAMENTE (distinto a CER que viene acumulado)</span><br>
+        <span class="var-bcra">coef_TAMAR</span> <span class="op">= Π [ 1 +</span> <span class="var-bcra">TAMAR_dia(i)</span> <span class="op">/ 365 ]</span> <span class="comment">// para cada dia desde emision</span><br><br>
+        <span class="var-calc">pago_estimado</span> <span class="op">=</span> <span class="var-cnv">100</span> <span class="op">×</span> <span class="var-bcra">coef_TAMAR_total</span><br>
+        <span class="var-calc">TIR (est)</span> <span class="op">= (</span><span class="var-calc">pago_estimado</span> <span class="op">/</span> <span class="var-oms">precio</span><span class="op">)^(365/dias) - 1</span>
+      </div>
+      <div class="note">La TIR es siempre ESTIMADA porque depende de la TAMAR futura (desconocida). Se asume TAMAR constante.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — M31G6 (LETAM Ago 2026) <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio</label>
+          <input type="number" id="tam-precio" value="101.80" step="0.01" oninput="calcLetam()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-bcra" style="font-size:10px">BCRA</span> TAMAR actual (TNA %)</label>
+          <input type="number" id="tam-tna" value="32" step="0.5" oninput="calcLetam()">
+        </div>
+        <div class="calc-field">
+          <label>Dias desde emision</label>
+          <input type="number" id="tam-dias-pasados" value="40" oninput="calcLetam()">
+        </div>
+        <div class="calc-field">
+          <label>Dias al vencimiento</label>
+          <input type="number" id="tam-dias-futuro" value="337" oninput="calcLetam()">
+        </div>
+      </div>
+      <div class="steps" id="tam-steps"></div>
+      <div class="results-grid" id="tam-results"></div>
+    </div>
+
+    <div class="card">
+      <div class="flex-between mb-8">
+        <div class="card-title" style="margin:0">CER vs TAMAR — diferencia clave</div>
+      </div>
+      <table class="comparison-table">
+        <tr><th></th><th>CER</th><th>TAMAR</th></tr>
+        <tr><td>BCRA publica</td><td>Coeficiente acumulado</td><td>Tasa diaria (TNA)</td></tr>
+        <tr><td>Para calcular</td><td>Solo dividir: CER_hoy / CER_emision</td><td>Acumular diariamente: Π(1 + tasa/365)</td></tr>
+        <tr><td>Serie necesaria</td><td>Solo el valor de hoy</td><td>Completa desde fecha de emision</td></tr>
+        <tr><td>BCRA endpoint</td><td>Serie 30</td><td>Serie 44</td></tr>
+        <tr><td>TIR</td><td>Exacta (real, sobre inflacion)</td><td>Estimada (asume tasa constante)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ BONTAM ════════════════════ -->
+<section id="bontam">
+  <div class="container">
+    <div class="section-header">
+      <h2><span class="badge badge-letam">BONTAM</span> Bonos ajustados por TAMAR</h2>
+      <p>El mas complejo. Combina cupones periodicos (TAMAR + spread), amortizacion de capital, y tasa variable.</p>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div class="card-title">Para el equipo de desarrollo</div>
+      <p class="text-sm text-2" style="line-height:1.8">
+        <strong>Precio</strong> → <span class="badge badge-oms">OMS</span>. En data912: <code style="color:var(--accent)">TMF27</code>, campo <code>c</code>.<br>
+        <strong>TAMAR + serie historica</strong> → <span class="badge badge-bcra">BCRA</span> serie 44. Misma que LETAM.<br>
+        <strong>Spread sobre TAMAR</strong> → <span class="badge badge-cnv">CNV</span> fijo, del prospecto. TMF27 = 0%.<br>
+        <strong>Cronograma de flujos</strong> → <span class="badge badge-cnv">CNV</span> fijo. Cada flujo: fecha, % amort, base. No tiene tasa fija porque la tasa ES la TAMAR.<br><br>
+        <strong>Que desarrollar:</strong> ① Todo lo de LETAM (serie TAMAR, acumulacion) ② Cupon = VR × (TAMAR_periodo + spread) × base ③ Newton-Raphson sobre flujos proyectados ④ TIR siempre estimada.<br>
+        <strong>El mas complejo de todos.</strong> Combina Newton-Raphson (como BONCER) con TAMAR acumulada (como LETAM). Dejarlo para el final.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Formulas</div>
+      <div class="formula-block">
+        <span class="var-calc">cupon</span> <span class="op">=</span> <span class="var-calc">VR</span> <span class="op">× (</span><span class="var-bcra">TAMAR_acum</span> <span class="op">+</span> <span class="var-cnv">spread</span><span class="op">) ×</span> <span class="var-cnv">base</span><br>
+        <span class="var-calc">flujo(i)</span> <span class="op">=</span> <span class="var-calc">cupon</span> <span class="op">+</span> <span class="var-cnv">amortizacion</span><br>
+        <span class="var-calc">TIR (est)</span> <span class="op">→ Newton-Raphson sobre flujos proyectados</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ejemplo interactivo — TMF27 (BONTAM Feb 2027) <span class="badge badge-oms" style="font-size:10px">LIVE</span></div>
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio</label>
+          <input type="number" id="btam-precio" value="98.50" step="0.01" oninput="calcBontam()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-bcra" style="font-size:10px">BCRA</span> TAMAR actual (TNA %)</label>
+          <input type="number" id="btam-tna" value="32" step="0.5" oninput="calcBontam()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Spread sobre TAMAR (%)</label>
+          <input type="number" id="btam-spread" value="2" step="0.5" oninput="calcBontam()">
+        </div>
+      </div>
+      <div class="card-title mt-24">Flujos estimados</div>
+      <table class="flow-table" id="btam-flows"></table>
+      <div class="steps" id="btam-steps"></div>
+      <div class="results-grid" id="btam-results"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════ RESUMEN ════════════════════ -->
+<section id="resumen">
+  <div class="container">
+    <div class="section-header">
+      <h2>Resumen — Que calcular para cada instrumento</h2>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="comparison-table">
+      <tr>
+        <th>Instrumento</th><th>TNA</th><th>TIR</th><th>Paridad</th>
+        <th>Metodo TIR</th><th>Coeficiente</th><th>BCRA Serie</th>
+      </tr>
+      <tr>
+        <td><span class="badge badge-lecap">LECAP</span></td><td>Si</td><td>Si</td><td>Si</td>
+        <td>Formula directa</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-lecap">BONCAP</span></td><td>Si</td><td>Si</td><td>Si</td>
+        <td>Formula directa</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-boncer">LECER</span></td><td>—</td><td>Si (real)</td><td>Si</td>
+        <td>Directa + CER</td><td>CER</td><td>30</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-boncer">BONCER</span></td><td>—</td><td>Si (real)</td><td>Si</td>
+        <td>Newton-Raphson</td><td>CER</td><td>30</td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:var(--green-soft);color:var(--green)">BONAR</span></td><td>—</td><td>Si (USD)</td><td>Si</td>
+        <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:var(--green-soft);color:var(--green)">GLOBAL</span></td><td>—</td><td>Si (USD)</td><td>Si</td>
+        <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-bote">BOTE</span></td><td>Si</td><td>Si</td><td>Si</td>
+        <td>Newton-Raphson</td><td>Ninguno</td><td>—</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-lelink">LELINK</span></td><td>Si (ARS)</td><td>Si (ARS)</td><td>Si</td>
+        <td>Directa + TC</td><td>TC Oficial</td><td>4</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-letam">LETAM</span></td><td>—</td><td>Estimada</td><td>Si</td>
+        <td>Directa + TAMAR proy.</td><td>TAMAR</td><td>27</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-letam">BONTAM</span></td><td>—</td><td>Estimada</td><td>Si</td>
+        <td>Newton-Raphson + TAMAR</td><td>TAMAR</td><td>27</td>
+      </tr>
+    </table>
+    </div>
+
+    <div class="card mt-24">
+      <div class="card-title">Fuentes de datos</div>
+      <table class="comparison-table">
+        <tr><th>Dato</th><th>Fuente</th><th>Endpoint / API</th></tr>
+        <tr><td>Precios de mercado</td><td><span class="badge badge-oms">OMS</span> interno</td><td>Sistema propio</td></tr>
+        <tr><td>CER</td><td><span class="badge badge-bcra">BCRA</span></td><td>api.bcra.gob.ar/estadisticas/v4.0/Monetarias/30</td></tr>
+        <tr><td>TAMAR</td><td><span class="badge badge-bcra">BCRA</span></td><td>api.bcra.gob.ar/estadisticas/v4.0/Monetarias/44</td></tr>
+        <tr><td>TC Oficial (A3500)</td><td><span class="badge badge-bcra">BCRA</span></td><td>api.bcra.gob.ar/estadisticas/v4.0/Monetarias/4</td></tr>
+        <tr><td>Condiciones emision</td><td><span class="badge badge-cnv">CNV</span></td><td>Prospectos / Ministerio Economia</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>uala-abc-data — Referencia educativa para el equipo de desarrollo</p>
+    <p style="margin-top:8px">Coeficientes BCRA en vivo. Precios de ejemplo (en produccion vienen del OMS).</p>
+  </div>
+</footer>
+
+<script>
+// ─── Helpers ───
+const MS_YR = 365.25 * 24 * 3600000;
+const $ = id => document.getElementById(id);
+const val = id => parseFloat($(id).value) || 0;
+
+function fmt(n, d=2) { return n.toFixed(d); }
+function fmtPct(n) { return n.toFixed(2) + '%'; }
+
+function renderSteps(el, steps) {
+  el.innerHTML = steps.map((s, i) => `
+    <div class="step">
+      <span class="step-num">${i+1}</span>
+      <span class="step-formula">${s.formula}</span>
+      <span class="step-result">${s.result}</span>
+    </div>`).join('');
+}
+
+function renderResults(el, items) {
+  el.innerHTML = items.map(r => `
+    <div class="result-item">
+      <div class="label">${r.label}</div>
+      <div class="value ${r.cls || ''}">${r.value}</div>
+    </div>`).join('');
+}
+
+// ─── Newton-Raphson ───
+function calcYTM(price, flows, today) {
+  let r = 0.10;
+  for (let i = 0; i < 100; i++) {
+    let pv = 0, dpv = 0;
+    for (const f of flows) {
+      const t = (f.fecha - today) / MS_YR;
+      if (t <= 0) continue;
+      const d = Math.pow(1 + r, t);
+      pv += f.monto / d;
+      dpv -= t * f.monto / (d * (1 + r));
+    }
+    if (Math.abs(pv - price) < 0.0001) break;
+    if (Math.abs(dpv) < 1e-12) break;
+    r -= (pv - price) / dpv;
+    r = Math.max(-0.5, Math.min(2, r));
+  }
+  return r * 100;
+}
+
+function calcMacDuration(flows, today, tirPct) {
+  const r = tirPct / 100;
+  let wt = 0, tot = 0;
+  for (const f of flows) {
+    const t = (f.fecha - today) / MS_YR;
+    if (t <= 0) continue;
+    const pv = f.monto / Math.pow(1 + r, t);
+    wt += t * pv; tot += pv;
+  }
+  return tot > 0 ? wt / tot : 0;
+}
+
+// ─── LECAP Calculator ───
+function calcLecap() {
+  const precio = val('lecap-precio');
+  const pf = val('lecap-pago');
+  const dias = val('lecap-dias');
+  if (!precio || !pf || !dias) return;
+
+  const ganancia = pf / precio;
+  const tna = (ganancia - 1) * (365 / dias) * 100;
+  const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
+  const par = (precio / pf) * 100;
+
+  renderSteps($('lecap-steps'), [
+    { formula: `ganancia = ${fmt(pf,3)} / ${fmt(precio)} `, result: fmt(ganancia, 5) },
+    { formula: `TNA = (${fmt(ganancia,5)} - 1) × (365 / ${dias}) × 100`, result: fmtPct(tna) },
+    { formula: `TIR = (${fmt(ganancia,5)} ^ (365/${dias}) - 1) × 100`, result: fmtPct(tir) },
+    { formula: `Paridad = ${fmt(precio)} / ${fmt(pf,3)} × 100`, result: fmtPct(par) },
+  ]);
+
+  renderResults($('lecap-results'), [
+    { label: 'TNA', value: fmtPct(tna), cls: tna > 0 ? 'positive' : 'negative' },
+    { label: 'TIR', value: fmtPct(tir), cls: tir > 0 ? 'positive' : 'negative' },
+    { label: 'Paridad', value: fmtPct(par) },
+    { label: 'Ganancia', value: fmt(ganancia, 4) + 'x' },
+  ]);
+}
+
+// ─── BONCER Calculator ───
+function calcBoncer() {
+  const precio = val('cer-precio');
+  const cerAct = val('cer-actual');
+  const cerEm = val('cer-emision');
+  const tasa = val('cer-tasa');
+  if (!precio || !cerAct || !cerEm) return;
+
+  const coef = cerAct / cerEm;
+  const today = new Date();
+  const flujosDef = [
+    { fecha: '2025-11-10', amort: 0.20, tasa: tasa, base: 0.5 },
+    { fecha: '2026-05-11', amort: 0.20, tasa: tasa, base: 0.5 },
+    { fecha: '2026-11-09', amort: 0.20, tasa: tasa, base: 0.5 },
+  ];
+
+  let amortAcum = 0.40; // ya amortizo 40% (flujos pasados)
+  const flowsHTML = [];
+  const flowsCalc = [];
+
+  for (const f of flujosDef) {
+    const fecha = new Date(f.fecha);
+    const vr = 1 - amortAcum;
+    const interes = vr * f.tasa * f.base;
+    const nominal = interes + f.amort;
+    const ajustado = nominal * coef;
+    amortAcum += f.amort;
+
+    flowsHTML.push(`<tr>
+      <td>${f.fecha}</td><td>${fmt(vr,2)}</td>
+      <td>${fmt(interes,4)}</td><td>${fmt(f.amort,2)}</td>
+      <td>${fmt(nominal,4)}</td><td style="font-weight:600">${fmt(ajustado,4)}</td>
+    </tr>`);
+    flowsCalc.push({ fecha, monto: ajustado });
+  }
+
+  $('cer-flows').innerHTML = `
+    <tr><th>Fecha</th><th>VR</th><th>Interes</th><th>Amort</th><th>Nominal</th><th>Ajustado</th></tr>
+    ${flowsHTML.join('')}`;
+
+  const precioNorm = precio / 100;
+  const tir = calcYTM(precioNorm, flowsCalc, today);
+  const dur = calcMacDuration(flowsCalc, today, tir);
+  const vr = 0.60;
+  const vt = vr * coef * 100;
+  const par = (precio / vt) * 100;
+
+  renderSteps($('cer-steps'), [
+    { formula: `coef_CER = ${fmt(cerAct)} / ${fmt(cerEm,3)}`, result: fmt(coef, 4) },
+    { formula: `VR actual = 1 - 0.40 (amort pasadas)`, result: fmt(vr, 2) },
+    { formula: `VT = ${fmt(vr)} × ${fmt(coef,4)} × 100`, result: '$' + fmt(vt) },
+    { formula: `Paridad = ${fmt(precio)} / ${fmt(vt)}`, result: fmtPct(par) },
+    { formula: `TIR (Newton-Raphson sobre flujos ajustados)`, result: fmtPct(tir) },
+  ]);
+
+  renderResults($('cer-results'), [
+    { label: 'TIR real', value: fmtPct(tir), cls: 'positive' },
+    { label: 'Duration', value: fmt(dur, 2) + ' a', cls: '' },
+    { label: 'Paridad', value: fmtPct(par) },
+    { label: 'Coef CER', value: fmt(coef, 4) + 'x' },
+  ]);
+}
+
+// ─── SOBERANOS Calculator ───
+function calcSoberanos() {
+  const precioAL = val('sob-precio-al');
+  const precioGD = val('sob-precio-gd');
+  if (!precioAL && !precioGD) return;
+  const today = new Date();
+
+  // Flujos GD30/AL30 (identicos, en USD por 100 VN)
+  const flujosRaw = [
+    { fecha: '2026-07-09', monto: 8.27 }, { fecha: '2027-01-09', monto: 8.24 },
+    { fecha: '2027-07-09', monto: 8.21 }, { fecha: '2028-01-09', monto: 8.42 },
+    { fecha: '2028-07-09', monto: 8.35 }, { fecha: '2029-01-09', monto: 8.28 },
+    { fecha: '2029-07-09', monto: 8.21 }, { fecha: '2030-01-09', monto: 8.14 },
+    { fecha: '2030-07-09', monto: 8.07 },
+  ];
+
+  const flujosFuturos = flujosRaw
+    .map(f => ({ fecha: new Date(f.fecha), monto: f.monto }))
+    .filter(f => f.fecha > today);
+
+  const flujosNorm = flujosFuturos.map(f => ({ fecha: f.fecha, monto: f.monto / 100 }));
+
+  // Tabla de flujos
+  $('sob-flows').innerHTML = `
+    <tr><th>Fecha</th><th>Cupon + Amort (USD)</th><th>Futuro?</th></tr>
+    ${flujosRaw.map(f => {
+      const fut = new Date(f.fecha) > today;
+      return `<tr${fut ? '' : ' style="opacity:0.4"'}><td>${f.fecha}</td><td>$${f.monto.toFixed(2)}</td><td>${fut ? '✓' : '—'}</td></tr>`;
+    }).join('')}`;
+
+  const tirAL = precioAL ? calcYTM(precioAL / 100, flujosNorm, today) : 0;
+  const tirGD = precioGD ? calcYTM(precioGD / 100, flujosNorm, today) : 0;
+  const durAL = precioAL ? calcMacDuration(flujosNorm, today, tirAL) : 0;
+  const spread = tirAL - tirGD; // local rinde mas (mas riesgo)
+
+  renderSteps($('sob-steps'), [
+    { formula: `AL30 TIR (Newton-Raphson, precio USD ${fmt(precioAL)})`, result: fmtPct(tirAL) },
+    { formula: `GD30 TIR (Newton-Raphson, precio USD ${fmt(precioGD)})`, result: fmtPct(tirGD) },
+    { formula: `Spread ley local vs NY = ${fmt(tirAL)} - ${fmt(tirGD)}`, result: fmt(spread, 0) + ' bps' },
+    { formula: `Duration Macaulay`, result: fmt(durAL, 2) + ' anos' },
+  ]);
+
+  renderResults($('sob-results'), [
+    { label: 'TIR AL30', value: fmtPct(tirAL), cls: 'positive' },
+    { label: 'TIR GD30', value: fmtPct(tirGD), cls: 'positive' },
+    { label: 'Spread', value: fmt(spread * 100, 0) + ' bps', cls: spread > 0 ? 'estimate' : '' },
+    { label: 'Duration', value: fmt(durAL, 2) + ' a' },
+  ]);
+}
+
+// ─── BOTE Calculator ───
+function calcBote() {
+  const precio = val('bote-precio');
+  if (!precio) return;
+  const today = new Date();
+
+  const flujos = [
+    { fecha: new Date('2025-04-15'), monto: 8.50 / 100 },
+    { fecha: new Date('2025-10-15'), monto: 8.50 / 100 },
+    { fecha: new Date('2026-04-15'), monto: 8.50 / 100 },
+    { fecha: new Date('2026-10-15'), monto: 108.50 / 100 },
+  ];
+  const futureFlows = flujos.filter(f => f.fecha > today);
+
+  $('bote-flows').innerHTML = `
+    <tr><th>Fecha</th><th>Cupon</th><th>Amort</th><th>Total</th><th>Futuro?</th></tr>
+    <tr><td>2025-04-15</td><td>$8.50</td><td>—</td><td>$8.50</td>
+      <td>${new Date('2025-04-15') > today ? '✓' : '—'}</td></tr>
+    <tr><td>2025-10-15</td><td>$8.50</td><td>—</td><td>$8.50</td>
+      <td>${new Date('2025-10-15') > today ? '✓' : '—'}</td></tr>
+    <tr><td>2026-04-15</td><td>$8.50</td><td>—</td><td>$8.50</td><td>✓</td></tr>
+    <tr class="highlight"><td>2026-10-15</td><td>$8.50</td><td>$100</td><td>$108.50</td><td>✓</td></tr>`;
+
+  const precioNorm = precio / 100;
+  const tir = calcYTM(precioNorm, futureFlows, today);
+  const dur = calcMacDuration(futureFlows, today, tir);
+  const par = (precio / 100) * 100;
+
+  renderSteps($('bote-steps'), [
+    { formula: `Flujos futuros: ${futureFlows.length} pagos`, result: '' },
+    { formula: `precio normalizado = ${fmt(precio)} / 100`, result: fmt(precioNorm, 4) },
+    { formula: `TIR (Newton-Raphson, ${futureFlows.length} flujos)`, result: fmtPct(tir) },
+    { formula: `Duration Macaulay`, result: fmt(dur, 2) + ' anos' },
+  ]);
+
+  renderResults($('bote-results'), [
+    { label: 'TIR', value: fmtPct(tir), cls: tir > 0 ? 'positive' : 'negative' },
+    { label: 'Duration', value: fmt(dur, 2) + ' a' },
+    { label: 'Paridad', value: fmtPct(par) },
+  ]);
+}
+
+// ─── LELINK Calculator ───
+function calcLelink() {
+  const precio = val('dl-precio');
+  const tcAct = val('dl-tc-actual');
+  const tcEm = val('dl-tc-emision');
+  const dias = val('dl-dias');
+  if (!precio || !tcAct || !tcEm || !dias) return;
+
+  const coefDL = tcAct / tcEm;
+  const pagoAjustado = 100 * coefDL;
+  const ganancia = pagoAjustado / precio;
+  const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
+  const tna = (ganancia - 1) * (365 / dias) * 100;
+  const par = (precio / pagoAjustado) * 100;
+  const devPct = (coefDL - 1) * 100;
+
+  renderSteps($('dl-steps'), [
+    { formula: `coef_DL = ${tcAct} / ${tcEm}`, result: fmt(coefDL, 4) },
+    { formula: `Devaluacion desde emision`, result: fmtPct(devPct) },
+    { formula: `Pago ajustado = 100 × ${fmt(coefDL,4)}`, result: '$' + fmt(pagoAjustado) },
+    { formula: `TIR (ARS) = (${fmt(pagoAjustado)} / ${fmt(precio)})^(365/${dias}) - 1`, result: fmtPct(tir) },
+    { formula: `Paridad = ${fmt(precio)} / ${fmt(pagoAjustado)} × 100`, result: fmtPct(par) },
+  ]);
+
+  renderResults($('dl-results'), [
+    { label: 'TIR (ARS)', value: fmtPct(tir), cls: tir > 0 ? 'positive' : 'negative' },
+    { label: 'TNA (ARS)', value: fmtPct(tna), cls: tna > 0 ? 'positive' : 'negative' },
+    { label: 'Paridad', value: fmtPct(par) },
+    { label: 'Devaluacion', value: fmtPct(devPct), cls: 'estimate' },
+  ]);
+}
+
+// ─── LETAM Calculator ───
+function calcLetam() {
+  const precio = val('tam-precio');
+  const tamarTNA = val('tam-tna') / 100;
+  const diasPasados = val('tam-dias-pasados');
+  const diasFuturo = val('tam-dias-futuro');
+  if (!precio || !tamarTNA) return;
+
+  const coefHist = Math.pow(1 + tamarTNA / 365, diasPasados);
+  const coefProy = Math.pow(1 + tamarTNA / 365, diasFuturo);
+  const coefTotal = coefHist * coefProy;
+  const pagoEst = 100 * coefTotal;
+  const ganancia = pagoEst / precio;
+  const tir = (Math.pow(ganancia, 365 / diasFuturo) - 1) * 100;
+  const vtHoy = 100 * coefHist;
+  const par = (precio / vtHoy) * 100;
+
+  renderSteps($('tam-steps'), [
+    { formula: `Tasa diaria = ${(tamarTNA*100).toFixed(1)}% / 365`, result: fmt(tamarTNA/365, 6) },
+    { formula: `Coef historico (${diasPasados}d) = (1 + ${fmt(tamarTNA/365,6)})^${diasPasados}`, result: fmt(coefHist, 6) },
+    { formula: `Coef proyectado (${diasFuturo}d, TAMAR cte)`, result: fmt(coefProy, 6) },
+    { formula: `Coef total = ${fmt(coefHist,4)} × ${fmt(coefProy,4)}`, result: fmt(coefTotal, 6) },
+    { formula: `Pago estimado = 100 × ${fmt(coefTotal,4)}`, result: '$' + fmt(pagoEst) },
+    { formula: `TIR estimada`, result: fmtPct(tir) },
+  ]);
+
+  renderResults($('tam-results'), [
+    { label: 'TIR (est)', value: fmtPct(tir), cls: 'estimate' },
+    { label: 'Paridad', value: fmtPct(par) },
+    { label: 'Coef TAMAR', value: fmt(coefHist, 4) + 'x' },
+    { label: 'Pago est.', value: '$' + fmt(pagoEst) },
+  ]);
+}
+
+// ─── BONTAM Calculator ───
+function calcBontam() {
+  const precio = val('btam-precio');
+  const tamarTNA = val('btam-tna') / 100;
+  const spread = val('btam-spread') / 100;
+  if (!precio) return;
+
+  const today = new Date();
+  const tasaEfectiva = tamarTNA + spread;
+
+  const flujosDef = [
+    { fecha: '2025-09-15', amort: 0.00, base: 0.5 },
+    { fecha: '2026-03-15', amort: 0.25, base: 0.5 },
+    { fecha: '2026-09-15', amort: 0.25, base: 0.5 },
+    { fecha: '2027-03-15', amort: 0.50, base: 0.5 },
+  ];
+
+  let amortAcum = 0;
+  const flowsHTML = [];
+  const flowsCalc = [];
+
+  for (const f of flujosDef) {
+    const fecha = new Date(f.fecha);
+    const vr = 1 - amortAcum;
+    const cupon = vr * tasaEfectiva * f.base;
+    const total = cupon + f.amort;
+    amortAcum += f.amort;
+
+    flowsHTML.push(`<tr>
+      <td>${f.fecha}</td><td>${fmt(vr,2)}</td>
+      <td>${fmt(cupon,4)}</td><td>${fmt(f.amort,2)}</td>
+      <td style="font-weight:600">${fmt(total,4)}</td>
+    </tr>`);
+    if (fecha > today) flowsCalc.push({ fecha, monto: total });
+  }
+
+  $('btam-flows').innerHTML = `
+    <tr><th>Fecha</th><th>VR</th><th>Cupon est.</th><th>Amort</th><th>Total</th></tr>
+    ${flowsHTML.join('')}`;
+
+  const precioNorm = precio / 100;
+  const tir = calcYTM(precioNorm, flowsCalc, today);
+  const dur = calcMacDuration(flowsCalc, today, tir);
+
+  renderSteps($('btam-steps'), [
+    { formula: `Tasa efectiva = TAMAR ${(tamarTNA*100).toFixed(0)}% + spread ${(spread*100).toFixed(0)}%`, result: fmtPct(tasaEfectiva*100) },
+    { formula: `Flujos futuros: ${flowsCalc.length}`, result: '' },
+    { formula: `TIR estimada (Newton-Raphson)`, result: fmtPct(tir) },
+    { formula: `Duration`, result: fmt(dur, 2) + ' anos' },
+  ]);
+
+  renderResults($('btam-results'), [
+    { label: 'TIR (est)', value: fmtPct(tir), cls: 'estimate' },
+    { label: 'Duration', value: fmt(dur, 2) + ' a' },
+    { label: 'Tasa efect.', value: fmtPct(tasaEfectiva * 100), cls: 'estimate' },
+  ]);
+}
+
+// ─── Theme Toggle ───
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  $('theme-icon').textContent = next === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('theme', next);
+}
+(function() {
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    const icon = document.getElementById('theme-icon');
+    if (icon) icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+  }
+})();
+
+// ─── Copy Code ───
+function copyCode(btn) {
+  const code = btn.parentElement.querySelector('pre').textContent;
+  navigator.clipboard.writeText(code.trim());
+  btn.textContent = 'Copiado!';
+  setTimeout(() => btn.textContent = 'Copiar', 1500);
+}
+
+// ─── Active Nav ───
+const navLinks = document.querySelectorAll('nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('section[id]').forEach(s => observer.observe(s));
+
+// ─── BCRA API Live Fetch ───
+function formatBCRA(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function fetchBCRA(serie) {
+  const hoy = new Date();
+  const desde = new Date(hoy); desde.setDate(desde.getDate() - 7);
+  const url = `https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/${serie}?desde=${formatBCRA(desde)}&hasta=${formatBCRA(hoy)}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const detalle = data.results?.[0]?.detalle || [];
+    if (detalle.length === 0) return null;
+    return { valor: detalle[0].valor, fecha: detalle[0].fecha };
+  } catch (e) {
+    console.warn(`BCRA serie ${serie} error:`, e.message);
+    return null;
+  }
+}
+
+function showLiveStatus(el, label, valor, fecha) {
+  if (!el) return;
+  el.innerHTML = `${valor} <span style="font-size:10px;color:var(--green);margin-left:4px">LIVE ${fecha}</span>`;
+}
+
+// ─── Data912 API (precios de mercado) ───
+// NOTA: En produccion estos precios vienen del OMS interno.
+// data912 es una fuente publica que usamos para la demo educativa.
+async function fetchData912() {
+  try {
+    const [bonds, notes] = await Promise.all([
+      fetch('https://data912.com/live/arg_bonds').then(r => r.ok ? r.json() : []).catch(() => []),
+      fetch('https://data912.com/live/arg_notes').then(r => r.ok ? r.json() : []).catch(() => []),
+    ]);
+    const all = [...bonds, ...notes];
+    const map = {};
+    for (const d of all) map[d.symbol] = { price: d.c, bid: d.px_bid, ask: d.px_ask, vol: d.v };
+    return map;
+  } catch (e) {
+    console.warn('data912 error:', e.message);
+    return {};
+  }
+}
+
+async function initLive() {
+  // Fetch coeficientes BCRA + precios data912 en paralelo
+  const [cer, tamar, tc, prices] = await Promise.all([
+    fetchBCRA(30),
+    fetchBCRA(44),
+    fetchBCRA(4),
+    fetchData912(),
+  ]);
+
+  const liveParts = [];
+
+  // ─── CER ───
+  if (cer) {
+    $('cer-actual').value = cer.valor.toFixed(2);
+    liveParts.push(`CER ${cer.valor.toFixed(2)}`);
+  }
+
+  // ─── TC Oficial ───
+  if (tc) {
+    $('dl-tc-actual').value = tc.valor.toFixed(0);
+    liveParts.push(`TC $${tc.valor.toFixed(0)}`);
+  }
+
+  // ─── TAMAR ───
+  if (tamar) {
+    $('tam-tna').value = tamar.valor.toFixed(2);
+    $('btam-tna').value = tamar.valor.toFixed(2);
+    liveParts.push(`TAMAR ${tamar.valor.toFixed(2)}%`);
+  }
+
+  // ─── Precios data912 ───
+  const priceCount = Object.keys(prices).length;
+  if (priceCount > 0) {
+    // LECAP S17A6
+    if (prices.S17A6) {
+      $('lecap-precio').value = prices.S17A6.price.toFixed(3);
+      $('lecap-pago').value = '110.125'; // prospecto real
+      // Calcular dias reales
+      const vto = new Date('2026-04-17');
+      const sett = new Date(); sett.setDate(sett.getDate() + 1);
+      $('lecap-dias').value = Math.max(1, Math.round((vto - sett) / 86400000));
+    }
+
+    // BONCER TX26 (precio en pesos, data912 da por 1 VN para TX26)
+    if (prices.TX26) $('cer-precio').value = (prices.TX26.price / 10).toFixed(2);
+
+    // BOTE TTS26
+    if (prices.TTS26) $('bote-precio').value = prices.TTS26.price.toFixed(2);
+
+    // LELINK D30A6 (precio en pesos, data912 da en miles)
+    if (prices.D30A6) $('dl-precio').value = (prices.D30A6.price / 1000).toFixed(2);
+
+    // LETAM M31G6
+    if (prices.M31G6) $('tam-precio').value = prices.M31G6.price.toFixed(2);
+
+    // BONTAM TMF27
+    if (prices.TMF27) $('btam-precio').value = prices.TMF27.price.toFixed(2);
+
+    // Soberanos USD (precio con D = en USD)
+    if (prices.AL30D) $('sob-precio-al').value = prices.AL30D.price.toFixed(2);
+    if (prices.GD30D) $('sob-precio-gd').value = prices.GD30D.price.toFixed(2);
+
+    liveParts.push(`${priceCount} precios`);
+  }
+
+  console.log('Live data:', { cer, tamar, tc, priceCount });
+
+  // Recalcular con datos frescos
+  calcLecap(); calcBoncer(); calcSoberanos(); calcBote();
+  calcLelink(); calcLetam(); calcBontam();
+
+  // Banner
+  const banner = document.createElement('div');
+  banner.style.cssText = 'text-align:center;padding:8px;font-size:12px;font-family:var(--mono);color:var(--green);background:var(--green-soft);border-bottom:1px solid var(--border)';
+  banner.innerHTML = liveParts.length
+    ? `● LIVE — ${liveParts.join(' · ')} <span style="color:var(--text-3)">(precios: data912 · coef: BCRA · en prod: OMS)</span>`
+    : '○ Usando datos de ejemplo (APIs no disponibles)';
+  document.body.insertBefore(banner, document.body.firstChild);
+}
+
+// Init: primero con defaults, luego override con BCRA+data912 live
+calcLecap();
+calcBoncer();
+calcSoberanos();
+calcBote();
+calcLelink();
+calcLetam();
+calcBontam();
+initLive();
+</script>
+</body>
+</html>
