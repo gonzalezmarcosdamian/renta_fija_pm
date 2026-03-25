@@ -1,5 +1,39 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-25 (noche 3) — Skills de diagnostico + fix de auditoria
+
+### 4 skills creadas
+- `validate-formulas`: valida TNA < TIR, Newton-Raphson converge, paridad > 0, duration coherente
+- `add-instrument`: guia paso a paso por tipo (LECAP 3 datos → BONTAM prospecto completo)
+- `audit`: QA completo de la landing (8 categorias, 4 severidades)
+- `cross-check`: cruza datos contra data912, BCRA y OMS
+
+### Diagnostico ejecutado — hallazgos y fixes
+
+**2 CRITICOS corregidos:**
+- Serie 27 → 44 en tabla resumen (LETAM y BONTAM mostraban serie incorrecta)
+- Settlement T+1 no se aplicaba en los calculadores. Creada funcion global `getSettlement()` que calcula T+1 habil (salta fines de semana). Todos los calculadores ahora la usan.
+
+**3 ALTOS corregidos:**
+- Guards de division por cero: precio<=0, cerEm<=0, tcEm<=0, dias<=0 ahora retornan sin calcular
+- Code-blocks JS copiables agregados a Soberanos, LELINK, LETAM, BONTAM (faltaban)
+- LETAM: diasFuturo<=0 producia Infinity, guard agregado
+- Snippet BONCER: variable settlement no estaba definida, corregido
+
+### Cross-check — hallazgos informativos
+- 43 tickers vencidos en el OMS (limpieza pendiente de Vantek, no del proyecto)
+- 21 tickers activos en OMS sin datos de prospecto en instrumentos.json
+- BCRA TAMAR (serie 44): ultimo dato 2026-03-20 (3 habiles de retraso, monitorear)
+- 7 tickers de ejemplo (S17A6, X15Y6, D30A6, TMF27, etc) no estan en OMS — correcto, son demos
+
+### Contexto OMS Vantek
+- Documentado que el OMS es producto de Vantek (vantek.co) — VANGUARD TECH S.A.
+- Protocolos FIX/ITCH, REST API Hub, usado por 50+ ALYCs
+- data912 es simulacion del OMS para la landing educativa
+- En cross-check: que un ticker no exista en data912 no es problema (existe en OMS)
+
+---
+
 ## 2026-03-25 (noche 2) — Mobile-first responsive
 
 ### Responsive design
