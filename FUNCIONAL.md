@@ -223,10 +223,78 @@ Base URL: `https://api.bcra.gob.ar/estadisticas/v4.0/Monetarias/{serie}`
 - Para TAMAR: `valor` es porcentaje TNA (ej: 26.75 = 26.75%)
 - Para TC: `valor` es ARS por 1 USD
 
-### IMPORTANTE — Serie 27 NO es TAMAR
+### Como se identificaron las series — proceso de rastreo
 
-La serie 27 que aparece en algunos repositorios devuelve `detalle: []` (vacio).
-TAMAR es la **serie 44** (bancos privados) o **135** (todos los bancos).
+El BCRA no documenta de forma clara que serie corresponde a que dato.
+Este es el proceso que se siguio para identificar las series correctas:
+
+**Paso 1 — Punto de partida:**
+El repo open-source rendimientos-ar usaba:
+- CER → serie 30
+- TAMAR → serie 27
+- TC Oficial → serie 4
+
+**Paso 2 — Verificacion con fetch real (2026-03-25):**
+```
+GET /Monetarias/30?desde=2026-03-18&hasta=2026-03-25
+→ ✅ detalle: [{fecha: "2026-03-25", valor: 731.25}]  (CER funciona)
+
+GET /Monetarias/27?desde=2026-03-18&hasta=2026-03-25
+→ ❌ detalle: []  (VACIO — serie 27 NO contiene datos de TAMAR)
+
+GET /Monetarias/4?desde=2026-03-18&hasta=2026-03-25
+→ ✅ detalle: [{fecha: "2026-03-25", valor: 1402.60}]  (TC funciona)
+```
+
+**Paso 3 — Consulta al catalogo completo de series:**
+```
+GET /Monetarias  (sin parametros)
+→ devuelve lista de TODAS las series disponibles con id, nombre, unidad
+```
+
+Filtrado por "TAMAR" se encontraron 5 series:
+
+| Serie | Descripcion | Unidad | Desde |
+|---|---|---|---|
+| **44** | Tasa de interes TAMAR de bancos privados | % nominal anual | 2024-10-01 |
+| 45 | Tasa de interes TAMAR de bancos privados | % efectivo anual | 2024-10-01 |
+| **135** | Tasa de interes TAMAR de bancos publicos y privados | % nominal anual | 2024-10-01 |
+| 136 | Tasa de interes TAMAR de bancos privados | % nominal anual | 2024-10-01 |
+| 137 | Tasa de interes TAMAR de bancos privados | % efectivo anual | 2024-10-01 |
+
+Series 136/137 son duplicados de 44/45.
+
+**Paso 4 — Verificacion de las candidatas:**
+```
+GET /Monetarias/44?desde=2026-03-18&hasta=2026-03-25
+→ ✅ detalle: [
+    {fecha: "2026-03-20", valor: 26.75},
+    {fecha: "2026-03-19", valor: 26.5625},
+    {fecha: "2026-03-18", valor: 27.1875}
+  ]
+
+GET /Monetarias/135?desde=2026-03-18&hasta=2026-03-25
+→ ✅ detalle: [
+    {fecha: "2026-03-20", valor: 26.125},
+    {fecha: "2026-03-19", valor: 26.5625},
+    {fecha: "2026-03-18", valor: 26.5625}
+  ]
+```
+
+**Paso 5 — Decision:**
+Se eligio **serie 44** (bancos privados, TNA) porque:
+- Es la mas referenciada en el mercado para liquidar instrumentos TAMAR
+- La diferencia con serie 135 (publicos+privados) es menor (~0.6%)
+- TNA (nominal anual) es la unidad que se necesita para acumular diariamente
+
+**Pendiente de validacion:** confirmar con el area de operaciones si los instrumentos
+LETAM/BONTAM se liquidan con serie 44 (privados) o serie 135 (todos).
+
+### Serie 27 — NO es TAMAR
+
+La serie 27 que aparece en el repo rendimientos-ar y otros repositorios open-source
+devuelve `detalle: []` (vacio) al consultar. No contiene datos de TAMAR.
+Fue verificado el 2026-03-25 con multiples rangos de fechas. No usar.
 
 ---
 

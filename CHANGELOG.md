@@ -1,5 +1,47 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-25 (noche) — Inventario OMS, soberanos ARS, rastreo series BCRA
+
+### Inventario OMS
+- Parseado CSV del OMS: 306 tickers totales, 91 de renta fija, 215 CEDEARs/acciones
+- Guardado en `data/tickers-oms.json` clasificado por tipo
+- Cada seccion de la landing muestra cantidad de tickers listados en OMS
+
+### Inventario por tipo
+| Tipo | Qty OMS | Status landing |
+|---|---|---|
+| LECAP | 40 | ● listados, ejemplo S17A6 |
+| BONCAP | 17 | ● listados, ejemplo T30J6 |
+| BONCER | 11 | ● listados, ejemplo TX26 |
+| BOTE | 4 | ● listados, ejemplo TTS26 |
+| LETAM | 4 | ● listados, ejemplo M31G6 |
+| BONAR | 5 | ● listados, ejemplo AL30 (nuevo) |
+| GLOBAL | 6 | ● listados (nuevo) |
+| LECER | 0 | ○ preparado, ejemplo X15Y6 |
+| LELINK | 0 | ○ preparado, ejemplo D30A6 |
+| BONTAM | 0 | ○ preparado, ejemplo TMF27 |
+
+### Soberanos ARS (nuevo)
+- Agregada seccion BONAR/GLOBAL operados en ARS
+- Ejemplo con AL30: precio live de data912 (en miles ARS, /1000)
+- Flujos en USD del prospecto, Newton-Raphson para TIR
+- 11 tickers en OMS: AL29, AL30, AL35, AL41, AE38, GD29, GD30, GD35, GD38, GD41, GD46
+
+### Rastreo de series BCRA (documentado en FUNCIONAL.md)
+- Documentado el proceso completo de como se identificaron las series
+- Serie 27 (TAMAR en repos open-source) → verificada VACIA el 2026-03-25
+- Catalogo completo consultado via GET /Monetarias (sin params)
+- 5 series TAMAR encontradas: 44, 45, 135, 136, 137
+- Elegida serie 44 (privados TNA) — pendiente confirmar con operaciones si usar 44 o 135
+- Proceso documentado paso a paso para reproducibilidad
+
+### Notas negocio simplificadas
+- Todas las "nota negocio" reescritas para validar SOLO formulas y calculos
+- Eliminadas preguntas operacionales/de proceso
+- Settlement T+1 declarado como constante global
+
+---
+
 ## 2026-03-25 (tarde) — Datos reales + precios live data912
 
 ### Precios de mercado en vivo
