@@ -1928,10 +1928,12 @@ async function initLive() {
     if (prices.S17A6) {
       $('lecap-precio').value = prices.S17A6.price.toFixed(3);
       $('lecap-pago').value = '110.125'; // prospecto real
-      // Calcular dias reales (usar fecha local, no UTC, para evitar off-by-one)
+      // Calcular dias reales — normalizar settlement a medianoche
+      // para evitar que la hora actual afecte el conteo de dias
       const emision = new Date(2025, 11, 19);   // 2025-12-19 local
       const vto = new Date(2026, 3, 17);         // 2026-04-17 local
-      const sett = getSettlement();               // T+1 habil
+      const s = getSettlement();
+      const sett = new Date(s.getFullYear(), s.getMonth(), s.getDate()); // medianoche
       const diasAlVto = Math.max(1, Math.round((vto - sett) / 86400000));
       const diasDesdeEm = Math.max(1, Math.round((sett - emision) / 86400000));
       $('lecap-dias').value = diasAlVto;
