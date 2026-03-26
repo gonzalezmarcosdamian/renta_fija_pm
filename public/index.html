@@ -465,7 +465,7 @@
       <p class="text-sm text-2">Estos datos salen del prospecto de emision (Ministerio de Economia / CNV). Se cargan una vez y <strong>no cambian nunca</strong>.</p>
       <table class="comparison-table" style="margin-top:12px">
         <tr><th>Tipo</th><th>Datos del prospecto</th><th>Ejemplo</th></tr>
-        <tr><td>LECAP / BONCAP</td><td>pago_final, fecha_vencimiento</td><td>S17A6: pago=110.125, vto=2026-04-17</td></tr>
+        <tr><td>LECAP / BONCAP</td><td>pago_final, fecha_emision, fecha_vencimiento</td><td>S17A6: pago=110.125, em=2025-12-19, vto=2026-04-17</td></tr>
         <tr><td>LECER</td><td>+ cer_emision</td><td>X15Y6: cer_em=701.614</td></tr>
         <tr><td>LETAM</td><td>+ fecha_emision</td><td>M31G6: em=2025-08-29</td></tr>
         <tr><td>LELINK</td><td>+ tc_emision</td><td>D30A6: tc_em=1197.50</td></tr>
@@ -501,7 +501,8 @@
         <strong>Pago final</strong> → <span class="badge badge-cnv">CNV</span> fijo, de la licitacion del Ministerio de Economia. Se carga una vez, no cambia nunca.<br>
         <strong>Fecha de vencimiento</strong> → <span class="badge badge-cnv">CNV</span> fija, misma fuente.<br>
         <strong>Dias al vencimiento</strong> → <span class="badge badge-calc">CALC</span> calculado: <code>fecha_vto - settlement(hoy)</code>. No se hardcodea.<br><br>
-        <strong>Que desarrollar:</strong> ① Endpoint que lea precio del OMS por ticker ② Tabla de instrumentos con pago_final y fecha_vto (se actualiza solo en nueva licitacion) ③ Calculo de TNA, TIR y Paridad — formulas directas, sin iteracion.<br>
+        <strong>Que desarrollar:</strong> ① Endpoint que lea precio del OMS por ticker ② Tabla de instrumentos con pago_final, fecha_emision y fecha_vto (se actualiza solo en nueva licitacion) ③ Calculo de TNA, TIR y Paridad — formulas directas, sin iteracion.<br>
+        <strong>Paridad:</strong> se calcula contra el <strong>valor devengado a settlement</strong> (capitalización acumulada desde emisión), NO contra pago_final.<br>
         <strong>Es el mas simple.</strong> Si esto funciona, el 70% de la logica ya esta.
       </p>
     </div>
@@ -513,7 +514,8 @@
         <span class="var-calc">ganancia</span> <span class="op">=</span> <span class="var-cnv">pago_final</span> <span class="op">/</span> <span class="var-oms">precio</span><br>
         <span class="var-calc">TNA</span> <span class="op">=</span> <span class="op">(</span><span class="var-calc">ganancia</span> <span class="op">- 1) × (365 /</span> <span class="var-cnv">dias</span><span class="op">) × 100</span> <span class="comment">// interes simple</span><br>
         <span class="var-calc">TIR</span> <span class="op">=</span> <span class="op">(</span><span class="var-calc">ganancia</span> <span class="op">^</span> <span class="op">(365 /</span> <span class="var-cnv">dias</span><span class="op">)</span> <span class="op">- 1) × 100</span> <span class="comment">// interes compuesto</span><br>
-        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio</span> <span class="op">/</span> <span class="var-cnv">pago_final</span> <span class="op">× 100</span>
+        <span class="var-calc">VT_devengado</span> <span class="op">= 100 × (</span><span class="var-cnv">pago_final</span> <span class="op">/ 100) ^ (</span><span class="var-cnv">dias_desde_emision</span> <span class="op">/</span> <span class="var-cnv">dias_totales</span><span class="op">)</span> <span class="comment">// capitalizacion acumulada</span><br>
+        <span class="var-calc">Paridad</span> <span class="op">=</span> <span class="var-oms">precio</span> <span class="op">/</span> <span class="var-calc">VT_devengado</span> <span class="op">× 100</span>
       </div>
     </div>
 
@@ -529,7 +531,11 @@
       </div>
       <div class="origin-item">
         <span class="badge badge-cnv">CNV</span>
-        <div><span class="label">Dias al vencimiento</span><span class="value" id="lecap-dias-show">27</span></div>
+        <div><span class="label">Dias al vencimiento</span><span class="value" id="lecap-dias-show">21</span></div>
+      </div>
+      <div class="origin-item">
+        <span class="badge badge-calc">CALC</span>
+        <div><span class="label">VT Devengado</span><span class="value" id="lecap-vt-show">—</span></div>
       </div>
     </div>
 
@@ -547,7 +553,11 @@
         </div>
         <div class="calc-field">
           <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias al vto</label>
-          <input type="number" id="lecap-dias" value="27" oninput="calcLecap()">
+          <input type="number" id="lecap-dias" value="21" oninput="calcLecap()">
+        </div>
+        <div class="calc-field">
+          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias desde emision</label>
+          <input type="number" id="lecap-dias-emision" value="98" oninput="calcLecap()">
         </div>
       </div>
 
@@ -565,7 +575,9 @@
 const ganancia = pago_final / precio;
 const tna = (ganancia - 1) * (365 / dias) * 100;
 const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
-const paridad = (precio / pago_final) * 100;</pre>
+const diasTotales = dias_desde_emision + dias;
+const vt = 100 * Math.pow(pago_final / 100, dias_desde_emision / diasTotales);
+const paridad = (precio / vt) * 100;</pre>
     </div>
 
     <div class="card">
@@ -574,14 +586,17 @@ const paridad = (precio / pago_final) * 100;</pre>
 Ganancia = Pago_Final / Precio<br><br>
 TNA = (Ganancia − 1) × (365 / d) × 100 &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">// interes simple anualizado</span><br><br>
 TIR = (Ganancia<sup>(365/d)</sup> − 1) × 100 &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">// interes compuesto anualizado</span><br><br>
-Paridad = Precio / Pago_Final × 100 &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">// % del valor tecnico</span>
+VT = 100 × (Pago_Final / 100)<sup>(d_emision / d_total)</sup> &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">// valor devengado a settlement</span><br><br>
+Paridad = Precio / VT × 100 &nbsp;&nbsp;&nbsp;<span style="color:var(--text-3)">// % del valor devengado</span>
       </div>
       <div class="formula-math" style="margin-top:8px">
 <span style="color:var(--text-3)"># Python</span><br>
 ganancia = pago_final / precio<br>
 tna = (ganancia - 1) * (365 / dias) * 100<br>
 tir = (ganancia ** (365 / dias) - 1) * 100<br>
-paridad = (precio / pago_final) * 100
+dias_totales = dias_desde_emision + dias<br>
+vt = 100 * (pago_final / 100) ** (dias_desde_emision / dias_totales)<br>
+paridad = (precio / vt) * 100
       </div>
     </div>
 
@@ -597,7 +612,7 @@ paridad = (precio / pago_final) * 100
       <div class="note-title">Validar con negocio — calculos LECAP</div>
       ① Confirmar que <strong>TNA = (ganancia − 1) × (365 / dias)</strong> es interes simple anualizado.<br>
       ② Confirmar que <strong>TIR = ganancia^(365/dias) − 1</strong> es interes compuesto anualizado.<br>
-      ③ Confirmar que <strong>Paridad = precio / pago_final × 100</strong>. Bajo 100% = descuento.<br>
+      ③ Confirmar que <strong>Paridad = precio / VT_devengado × 100</strong>, donde VT = capitalización acumulada desde emisión. Bajo 100% = descuento.<br>
       ④ Confirmar que los dias se calculan desde <strong>T+1</strong> hasta fecha de vencimiento.
     </div>
   </div>
@@ -1457,25 +1472,35 @@ function calcLecap() {
   const precio = val('lecap-precio');
   const pf = val('lecap-pago');
   const dias = val('lecap-dias');
-  if (!precio || precio <= 0 || !pf || pf <= 0 || dias <= 0) return;
+  const diasEm = val('lecap-dias-emision');
+  if (!precio || precio <= 0 || !pf || pf <= 0 || dias <= 0 || diasEm < 0) return;
 
   const ganancia = pf / precio;
   const tna = (ganancia - 1) * (365 / dias) * 100;
   const tir = (Math.pow(ganancia, 365 / dias) - 1) * 100;
-  const par = (precio / pf) * 100;
+
+  // Paridad contra valor devengado (capitalización acumulada hasta settlement)
+  const diasTot = diasEm + dias;
+  const vt = diasTot > 0 ? 100 * Math.pow(pf / 100, diasEm / diasTot) : pf;
+  const par = (precio / vt) * 100;
+
+  // Update VT display
+  const vtEl = $('lecap-vt-show');
+  if (vtEl) vtEl.textContent = fmt(vt, 3);
 
   renderSteps($('lecap-steps'), [
     { formula: `ganancia = ${fmt(pf,3)} / ${fmt(precio)} `, result: fmt(ganancia, 5) },
     { formula: `TNA = (${fmt(ganancia,5)} - 1) × (365 / ${dias}) × 100`, result: fmtPct(tna) },
     { formula: `TIR = (${fmt(ganancia,5)} ^ (365/${dias}) - 1) × 100`, result: fmtPct(tir) },
-    { formula: `Paridad = ${fmt(precio)} / ${fmt(pf,3)} × 100`, result: fmtPct(par) },
+    { formula: `VT = 100 × (${fmt(pf,3)}/100) ^ (${diasEm}/${diasTot})`, result: fmt(vt, 3) },
+    { formula: `Paridad = ${fmt(precio)} / ${fmt(vt,3)} × 100`, result: fmtPct(par) },
   ]);
 
   renderResults($('lecap-results'), [
     { label: 'TNA', value: fmtPct(tna), cls: tna > 0 ? 'positive' : 'negative' },
     { label: 'TIR', value: fmtPct(tir), cls: tir > 0 ? 'positive' : 'negative' },
+    { label: 'VT Devengado', value: fmt(vt, 3) },
     { label: 'Paridad', value: fmtPct(par) },
-    { label: 'Ganancia', value: fmt(ganancia, 4) + 'x' },
   ]);
 }
 
