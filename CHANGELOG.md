@@ -1,5 +1,41 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-26 — Fix dias restantes y paridad (feedback Franco Cellere)
+
+### Contexto
+Franco Cellere revisó los cálculos de S17A6 y reportó dos errores:
+1. Días restantes mostraba 20 en vez de 21
+2. Paridad se calculaba contra pago_final (valor al vto) en vez del devengado a settlement
+
+### Fixes aplicados
+
+- **F1 (CRITICO)**: `diasEntre()` — normalizacion a UTC midnight
+  - **Bug**: `new Date('2026-04-17')` crea UTC midnight, que en UTC-3 (Argentina) se lee como abril 16. La diferencia daba ~20.25 días, `Math.round()` truncaba a 20.
+  - **Fix**: Normalizar ambas fechas con `Date.UTC(getFullYear(), getMonth(), getDate())` antes de restar.
+  - **Archivo**: `src/calculators/settlement.js`
+
+- **F2 (CRITICO)**: Paridad de LECAP/BONCAP — devengado vs pago_final
+  - **Bug**: `valorTecnicoLetra(pagoFinal)` usaba el pago al vencimiento como VT. Esto daba "% del cobro final", no paridad real.
+  - **Fix**: Nueva función `valorDevengadoLetra(pagoFinal, diasDesdeEmision, diasTotales)` que calcula `100 × (pago_final/100)^(t)` — la capitalización acumulada hasta settlement.
+  - **Archivo**: `src/calculators/paridad.js`
+
+- **F3 (ALTO)**: `parseFecha()` — nuevo helper para fechas ISO como local
+  - **Bug**: `new Date('YYYY-MM-DD')` crea UTC midnight, que en TZ negativas es el día anterior en hora local. Esto afectaba todos los cálculos con `diasEntre`.
+  - **Fix**: Nuevo `parseFecha(isoStr)` que extrae Y-M-D y crea `new Date(y, m-1, d)` en hora local.
+  - **Archivo**: `src/calculators/settlement.js`, actualizado en todos los examples
+
+### Datos actualizados
+- `data/instrumentos.json`: agregado `fecha_emision` a las 4 LECAPs y 2 BONCAPs (necesario para calcular devengado)
+
+### Tests agregados
+- `test/settlement.test.js` (nuevo): 6 tests para `getSettlementDate`, `diasEntre` y `parseFecha`
+- `test/paridad.test.js`: 4 tests nuevos para `valorDevengadoLetra` (día 0, día final, mitad de plazo, exponencial vs lineal)
+
+### Estado
+20/20 tests pasan. Ejemplo `lecap.js` muestra VT devengado y paridad correctos.
+
+---
+
 ## 2026-03-25 (noche 4) — Fix validate-formulas: datos sincronizados
 
 ### Hallazgos de validate-formulas

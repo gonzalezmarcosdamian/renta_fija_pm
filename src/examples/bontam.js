@@ -20,7 +20,7 @@ const { tirNewtonRaphson } = require('../calculators/tir');
 const { paridad, vrPorFlujo, valorTecnicoBono } = require('../calculators/paridad');
 const { macaulayDuration } = require('../calculators/duration');
 const { proyectarTAMAR } = require('../coefficients/tamar');
-const { getSettlementDate, diasEntre } = require('../calculators/settlement');
+const { getSettlementDate, diasEntre, parseFecha } = require('../calculators/settlement');
 const { getPrice } = require('../market/mock-prices');
 const instrumentos = require('../../data/instrumentos.json');
 
@@ -83,7 +83,7 @@ for (const [ticker, bono] of Object.entries(instrumentos.bontams)) {
   // 5. Paridad
   //    VT de BONTAM = VR * coef_TAMAR_acumulado * 100
   //    Simplificacion: usamos la proyeccion desde emision hasta hoy
-  const diasDesdeEmision = diasEntre(new Date(bono.fecha_emision), hoy);
+  const diasDesdeEmision = diasEntre(parseFecha(bono.fecha_emision), hoy);
   const coefTamarHoy = proyectarTAMAR(TAMAR_ACTUAL_TNA, diasDesdeEmision);
   const vr = flujosConVR.filter(f => new Date(f.fecha) > hoy)[0]?.vr_antes || 1;
   const vt = valorTecnicoBono(vr, coefTamarHoy);

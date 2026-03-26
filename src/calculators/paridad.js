@@ -67,12 +67,13 @@ function vrPorFlujo(flujos) {
 // ─── VALOR TECNICO ───
 
 /**
- * Valor Tecnico para letras (pago unico, sin ajuste).
+ * Valor Tecnico para letras ajustables (con coeficiente externo).
  *
- * Para LECAP/BONCAP:  VT = pago_final (es fijo)
- * Para LECER:         VT = pago_final * (CER_actual / CER_emision)
- * Para LELINK:        VT = pago_final * (TC_actual / TC_emision)
- * Para LETAM:         VT = pago_final * coef_TAMAR_acumulado
+ * Para LECER:   VT = pago_final * (CER_actual / CER_emision)
+ * Para LELINK:  VT = pago_final * (TC_actual / TC_emision)
+ * Para LETAM:   VT = pago_final * coef_TAMAR_acumulado
+ *
+ * NO USAR para LECAP/BONCAP — para esos usar valorDevengadoLetra().
  *
  * @param {number} pagoFinal   - Pago al vencimiento por 100 VN
  * @param {number} [coefAjuste=1] - Coeficiente de ajuste (1 si no tiene)
@@ -80,6 +81,28 @@ function vrPorFlujo(flujos) {
  */
 function valorTecnicoLetra(pagoFinal, coefAjuste = 1) {
   return pagoFinal * coefAjuste;
+}
+
+/**
+ * Valor Tecnico devengado para letras capitalizables (LECAP/BONCAP).
+ *
+ * El interes se capitaliza diariamente. El VT a una fecha intermedia es
+ * la proporcion capitalizada entre emision y vencimiento:
+ *
+ *   VT(t) = 100 × (pago_final / 100) ^ (dias_desde_emision / dias_totales)
+ *
+ * Ejemplo: LECAP con pago_final 110.125, emitida hace 99 de 120 dias:
+ *   VT = 100 * (1.10125)^(99/120) = 108.34
+ *
+ * @param {number} pagoFinal        - Pago al vencimiento por 100 VN
+ * @param {number} diasDesdeEmision  - Dias corridos desde la emision hasta settlement
+ * @param {number} diasTotales       - Dias corridos desde la emision hasta el vencimiento
+ * @returns {number} Valor tecnico devengado por 100 VN
+ */
+function valorDevengadoLetra(pagoFinal, diasDesdeEmision, diasTotales) {
+  if (diasTotales <= 0) return pagoFinal;
+  const proporcion = diasDesdeEmision / diasTotales;
+  return 100 * Math.pow(pagoFinal / 100, proporcion);
 }
 
 /**
@@ -118,4 +141,4 @@ function paridad(precio, valorTecnico) {
   return (precio / valorTecnico) * 100;
 }
 
-module.exports = { valorResidual, vrPorFlujo, valorTecnicoLetra, valorTecnicoBono, paridad };
+module.exports = { valorResidual, vrPorFlujo, valorTecnicoLetra, valorDevengadoLetra, valorTecnicoBono, paridad };

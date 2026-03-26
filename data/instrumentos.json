@@ -10,6 +10,7 @@
       "ticker_d912": "S17A6",
       "tipo": "lecap",
       "nombre": "LECAP Abril 2026",
+      "fecha_emision": "2025-12-19",
       "fecha_vencimiento": "2026-04-17",
       "pago_final": 110.125
     },
@@ -18,6 +19,7 @@
       "ticker_d912": "S30A6",
       "tipo": "lecap",
       "nombre": "LECAP Abril 30 2026",
+      "fecha_emision": "2025-07-09",
       "fecha_vencimiento": "2026-04-30",
       "pago_final": 127.486
     },
@@ -26,6 +28,7 @@
       "ticker_d912": "S29Y6",
       "tipo": "lecap",
       "nombre": "LECAP Mayo 2026",
+      "fecha_emision": "2025-06-25",
       "fecha_vencimiento": "2026-05-29",
       "pago_final": 132.044
     },
@@ -34,6 +37,7 @@
       "ticker_d912": "S30N6",
       "tipo": "lecap",
       "nombre": "LECAP Noviembre 2026",
+      "fecha_emision": "2026-01-14",
       "fecha_vencimiento": "2026-11-30",
       "pago_final": 129.888
     }
@@ -46,6 +50,7 @@
       "ticker_d912": "T30J6",
       "tipo": "boncap",
       "nombre": "BONCAP Junio 2026",
+      "fecha_emision": "2025-04-02",
       "fecha_vencimiento": "2026-06-30",
       "pago_final": 144.896
     },
@@ -54,6 +59,7 @@
       "ticker_d912": "T15E7",
       "tipo": "boncap",
       "nombre": "BONCAP Enero 2027",
+      "fecha_emision": "2025-06-11",
       "fecha_vencimiento": "2027-01-15",
       "pago_final": 161.104
     }

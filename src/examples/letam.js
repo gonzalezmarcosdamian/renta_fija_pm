@@ -23,7 +23,7 @@ const { tirDirecta } = require('../calculators/tir');
 const { tnaLetra } = require('../calculators/tna');
 const { paridad, valorTecnicoLetra } = require('../calculators/paridad');
 const { acumularTAMAR, proyectarTAMAR } = require('../coefficients/tamar');
-const { getSettlementDate, diasEntre } = require('../calculators/settlement');
+const { getSettlementDate, diasEntre, parseFecha } = require('../calculators/settlement');
 const { getPrice } = require('../market/mock-prices');
 const instrumentos = require('../../data/instrumentos.json');
 
@@ -55,7 +55,7 @@ for (const [ticker, inst] of Object.entries(instrumentos.letams)) {
   console.log(`─── ${ticker} (${inst.nombre}) ───`);
   console.log(`Precio mercado:  $${market.price} (por 100 VN) ← OMS`);
 
-  const vto = new Date(inst.fecha_vencimiento);
+  const vto = parseFecha(inst.fecha_vencimiento);
   const diasAlVto = diasEntre(settlement, vto);
 
   // 1. Coeficiente TAMAR acumulado desde emision hasta hoy

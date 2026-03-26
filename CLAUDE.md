@@ -24,7 +24,7 @@ src/
   calculators/       # Funciones puras de calculo (TNA, TIR, Paridad, Duration)
     tir.js           # Newton-Raphson para TIR/YTM
     tna.js           # TNA segun tipo de instrumento
-    paridad.js       # Paridad y Valor Tecnico
+    paridad.js       # Paridad, Valor Tecnico y Valor Devengado
     duration.js      # Macaulay Duration
     settlement.js    # Fecha de liquidacion T+1
 
@@ -71,6 +71,10 @@ test/
 - TIR y TNA se devuelven como porcentaje (ej: 35.5 = 35.5%).
 - Flujos: array de {fecha: Date, monto: number}.
 - Settlement: T+1 habil (dias habiles argentinos).
+- Paridad: siempre contra valor tecnico devengado a settlement (no contra pago_final).
+  - LECAP/BONCAP: VT = 100 * (pago_final/100)^(dias_desde_emision/dias_totales)
+  - Letras ajustables (LECER/LELINK/LETAM): VT = pago_final * coeficiente_a_hoy
+  - Bonos: VT = VR * coeficiente * 100
 
 ## Prompts para agentes
 

@@ -19,7 +19,7 @@ const { tirDirecta } = require('../calculators/tir');
 const { tnaLetra } = require('../calculators/tna');
 const { paridad, valorTecnicoLetra } = require('../calculators/paridad');
 const { coeficienteDL } = require('../coefficients/tc-oficial');
-const { getSettlementDate, diasEntre } = require('../calculators/settlement');
+const { getSettlementDate, diasEntre, parseFecha } = require('../calculators/settlement');
 const { getPrice } = require('../market/mock-prices');
 const instrumentos = require('../../data/instrumentos.json');
 
@@ -46,7 +46,7 @@ for (const [ticker, inst] of Object.entries(instrumentos.lelinks)) {
   console.log(`TC emision:      $${inst.tc_emision} ← condiciones de emision`);
   console.log(`TC actual:       $${TC_ACTUAL} ← BCRA`);
 
-  const vto = new Date(inst.fecha_vencimiento);
+  const vto = parseFecha(inst.fecha_vencimiento);
   const dias = diasEntre(settlement, vto);
 
   // 1. Coeficiente Dolar Linked

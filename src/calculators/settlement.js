@@ -68,12 +68,36 @@ function getSettlementDate(fecha, diasHabiles = 1) {
 
 /**
  * Dias corridos entre dos fechas.
+ *
+ * Normaliza ambas fechas a medianoche UTC para evitar errores por
+ * diferencia de horas (ej: settlement viene de Date local, vencimiento
+ * viene de new Date('YYYY-MM-DD') que es UTC 00:00).
+ *
  * @param {Date} desde
  * @param {Date} hasta
  * @returns {number}
  */
 function diasEntre(desde, hasta) {
-  return Math.max(1, Math.round((hasta - desde) / (1000 * 60 * 60 * 24)));
+  const d1 = Date.UTC(desde.getFullYear(), desde.getMonth(), desde.getDate());
+  const d2 = Date.UTC(hasta.getFullYear(), hasta.getMonth(), hasta.getDate());
+  return Math.max(1, (d2 - d1) / (1000 * 60 * 60 * 24));
 }
 
-module.exports = { getSettlementDate, diasEntre, esHabil, FERIADOS };
+/**
+ * Parsea un string ISO (YYYY-MM-DD) como fecha local (medianoche local).
+ *
+ * new Date('2026-04-17') crea UTC midnight, que en zonas horarias
+ * con offset negativo (ej: Argentina UTC-3) aparece como el dia anterior
+ * (16 de abril a las 21:00 local). Esto corrompe el conteo de dias.
+ *
+ * Esta funcion extrae year/month/day y construye la fecha en hora local.
+ *
+ * @param {string} isoStr - Fecha en formato YYYY-MM-DD
+ * @returns {Date} Fecha a medianoche local
+ */
+function parseFecha(isoStr) {
+  const [y, m, d] = isoStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+module.exports = { getSettlementDate, diasEntre, esHabil, parseFecha, FERIADOS };

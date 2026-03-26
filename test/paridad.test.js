@@ -1,6 +1,6 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
-const { valorResidual, vrPorFlujo, valorTecnicoLetra, valorTecnicoBono, paridad } = require('../src/calculators/paridad');
+const { valorResidual, vrPorFlujo, valorTecnicoLetra, valorDevengadoLetra, valorTecnicoBono, paridad } = require('../src/calculators/paridad');
 
 describe('valorResidual', () => {
   it('VR = 1 antes de cualquier amortizacion', () => {
@@ -67,6 +67,34 @@ describe('paridad', () => {
 
   it('retorna null si VT es 0', () => {
     assert.equal(paridad(100, 0), null);
+  });
+});
+
+describe('valorDevengadoLetra', () => {
+  it('al inicio (dia 0) devuelve 100', () => {
+    const vt = valorDevengadoLetra(110.125, 0, 120);
+    assert.ok(Math.abs(vt - 100) < 0.01, `VT ${vt} deberia ser 100`);
+  });
+
+  it('al vencimiento (dia total) devuelve pago_final', () => {
+    const vt = valorDevengadoLetra(110.125, 120, 120);
+    assert.ok(Math.abs(vt - 110.125) < 0.01, `VT ${vt} deberia ser 110.125`);
+  });
+
+  it('a mitad de plazo devuelve valor intermedio capitalizado', () => {
+    // pago_final 110.125, mitad de plazo (60 de 120 dias)
+    // VT = 100 * (1.10125)^0.5 ≈ 104.94
+    const vt = valorDevengadoLetra(110.125, 60, 120);
+    assert.ok(vt > 100 && vt < 110.125, `VT ${vt} deberia estar entre 100 y 110.125`);
+    assert.ok(Math.abs(vt - 104.94) < 0.1, `VT ${vt} deberia ser ~104.94`);
+  });
+
+  it('capitalizacion es exponencial, no lineal', () => {
+    // A 3/4 del plazo, el devengado exponencial es distinto del lineal
+    const vt = valorDevengadoLetra(110.125, 90, 120);
+    const vtLineal = 100 + (110.125 - 100) * (90 / 120); // 107.59 (lineal)
+    // El exponencial deberia ser ligeramente distinto al lineal
+    assert.notEqual(Math.round(vt * 100), Math.round(vtLineal * 100));
   });
 });
 
