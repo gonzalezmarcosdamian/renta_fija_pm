@@ -1,5 +1,18 @@
 # Bitacora de cambios — uala-abc-data
 
+## 2026-03-27 — Dias LECAP dinamicos + badge precio ejemplo
+
+### Cambios
+- **Dias al vto y desde emision** ahora se calculan dinámicamente al cargar la página via `initLecapDias()`, usando `getSettlement()` T+1 y las constantes `LECAP_EMISION`/`LECAP_VTO`. Ya no dependen de valores hardcodeados en el HTML.
+- **Badge "valor de ejemplo"** en ámbar junto al precio: se muestra por default y se oculta automáticamente cuando llega el precio live de data912.
+- **Labels de días** cambiados de `CNV` a `CALC` para reflejar que son calculados, no datos de la CNV.
+- **Eliminada lógica duplicada** de cálculo de días en el bloque de data912 (ahora usa `initLecapDias()` centralizado).
+
+### Motivación
+Los defaults hardcodeados (21 días, 98 días) quedaban obsoletos cada día. Si la API data912 fallaba, el usuario veía datos incorrectos sin advertencia.
+
+---
+
 ## 2026-03-26 — Fix dias restantes y paridad (feedback Franco Cellere)
 
 ### Contexto

@@ -544,7 +544,7 @@
       <div class="card-title">Ejemplo interactivo — S17A6 (LECAP Abril 2026) <span class="badge badge-oms" style="font-size:10px">LIVE data912</span></div>
       <div class="calc-grid">
         <div class="calc-field">
-          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio</label>
+          <label><span class="badge badge-oms" style="font-size:10px">OMS</span> Precio <span id="lecap-precio-badge" style="font-size:9px;color:var(--amber);font-weight:600">⚠ valor de ejemplo</span></label>
           <input type="number" id="lecap-precio" value="108.40" step="0.01" oninput="calcLecap()">
         </div>
         <div class="calc-field">
@@ -552,12 +552,12 @@
           <input type="number" id="lecap-pago" value="110.125" step="0.001" oninput="calcLecap()">
         </div>
         <div class="calc-field">
-          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias al vto</label>
-          <input type="number" id="lecap-dias" value="21" oninput="calcLecap()">
+          <label><span class="badge badge-calc" style="font-size:10px">CALC</span> Dias al vto</label>
+          <input type="number" id="lecap-dias" value="" oninput="calcLecap()">
         </div>
         <div class="calc-field">
-          <label><span class="badge badge-cnv" style="font-size:10px">CNV</span> Dias desde emision</label>
-          <input type="number" id="lecap-dias-emision" value="98" oninput="calcLecap()">
+          <label><span class="badge badge-calc" style="font-size:10px">CALC</span> Dias desde emision</label>
+          <input type="number" id="lecap-dias-emision" value="" oninput="calcLecap()">
         </div>
       </div>
 
@@ -1415,6 +1415,30 @@ function getSettlement() {
   return d;
 }
 
+// ─── LECAP S17A6: calcular dias dinamicamente ───
+const LECAP_EMISION = new Date(2025, 11, 19);  // 2025-12-19
+const LECAP_VTO = new Date(2026, 3, 17);        // 2026-04-17
+let lecapPrecioLive = false; // se pone true cuando llega data912
+
+function initLecapDias() {
+  const s = getSettlement();
+  const sett = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+  const diasAlVto = Math.max(1, Math.round((LECAP_VTO - sett) / 86400000));
+  const diasDesdeEm = Math.max(1, Math.round((sett - LECAP_EMISION) / 86400000));
+  $('lecap-dias').value = diasAlVto;
+  $('lecap-dias-emision').value = diasDesdeEm;
+}
+
+function updateLecapBadge() {
+  const el = $('lecap-precio-badge');
+  if (!el) return;
+  if (lecapPrecioLive) {
+    el.style.display = 'none';
+  } else {
+    el.style.display = 'inline';
+  }
+}
+
 function fmt(n, d=2) { return n.toFixed(d); }
 function fmtPct(n) { return n.toFixed(2) + '%'; }
 
@@ -1928,16 +1952,8 @@ async function initLive() {
     if (prices.S17A6) {
       $('lecap-precio').value = prices.S17A6.price.toFixed(3);
       $('lecap-pago').value = '110.125'; // prospecto real
-      // Calcular dias reales — normalizar settlement a medianoche
-      // para evitar que la hora actual afecte el conteo de dias
-      const emision = new Date(2025, 11, 19);   // 2025-12-19 local
-      const vto = new Date(2026, 3, 17);         // 2026-04-17 local
-      const s = getSettlement();
-      const sett = new Date(s.getFullYear(), s.getMonth(), s.getDate()); // medianoche
-      const diasAlVto = Math.max(1, Math.round((vto - sett) / 86400000));
-      const diasDesdeEm = Math.max(1, Math.round((sett - emision) / 86400000));
-      $('lecap-dias').value = diasAlVto;
-      $('lecap-dias-emision').value = diasDesdeEm;
+      lecapPrecioLive = true;
+      updateLecapBadge();
     }
 
     // BONCER TX26 (precio en pesos, data912 da por 1 VN para TX26)
@@ -1976,7 +1992,9 @@ async function initLive() {
   document.body.insertBefore(banner, document.body.firstChild);
 }
 
-// Init: primero con defaults, luego override con BCRA+data912 live
+// Init: calcular dias dinamicamente, luego override con BCRA+data912 live
+initLecapDias();
+updateLecapBadge();
 calcLecap();
 calcBoncer();
 calcBote();
